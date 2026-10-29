@@ -1,0 +1,76 @@
+# SQL Server - database cho order-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-order
+  namespace: shop
+spec:
+  ports:
+    - port: 1433
+      name: mssql
+  clusterIP: None
+  selector:
+    app: mssql-order
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mssql-order
+  namespace: shop
+spec:
+  serviceName: mssql-order
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql-order
+  template:
+    metadata:
+      labels:
+        app: mssql-order
+    spec:
+      containers:
+        - name: mssql
+          # Microsoft khuyen dung 2022, image chinh thuc tren MCR
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_PID
+              value: "Developer"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MSSQL_SA_PASSWORD
+          ports:
+            - containerPort: 1433
+              name: mssql
+          volumeMounts:
+            - name: mssql-data
+              mountPath: /var/opt/mssql
+          resources:
+            requests:
+              memory: "2Gi"  # SQL Server can it nhat 2GB RAM
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "1000m"
+          livenessProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 30
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: mssql-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

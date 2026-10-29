@@ -1,0 +1,85 @@
+# MySQL StatefulSet - co database cho user-service
+# Dung StatefulSet thay vi Deployment vi DB can:
+#   1. Persistent storage on dinh
+#   2. Ten Pod on dinh (mysql-user-0, mysql-user-1...)
+#   3. Network identity on dinh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-user
+  namespace: shop
+  labels:
+    app: mysql-user
+spec:
+  ports:
+    - port: 3306
+      name: mysql
+  clusterIP: None  # Headless service cho StatefulSet
+  selector:
+    app: mysql-user
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-user
+  namespace: shop
+spec:
+  serviceName: mysql-user
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-user
+  template:
+    metadata:
+      labels:
+        app: mysql-user
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              value: "shop_user"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          # Liveness probe: kiem tra MySQL co song khong
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          # Readiness probe: kiem tra co san sang nhan ket noi chua
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - "mysql -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD -e 'SELECT 1'"
+            initialDelaySeconds: 20
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

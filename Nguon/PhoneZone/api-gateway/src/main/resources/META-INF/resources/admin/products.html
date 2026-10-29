@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Sản phẩm – PhoneZone Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar"></nav>
+<main class="main">
+    <div class="page-header">
+        <h1><i class="fas fa-mobile-alt"></i> Quản lý sản phẩm</h1>
+        <div style="display:flex;gap:8px">
+            <button class="btn-outline" onclick="loadProducts()"><i class="fas fa-sync"></i> Refresh</button>
+            <button class="btn-red" onclick="showCreateProduct()"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+        </div>
+    </div>
+
+    <div class="card-box">
+        <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+            <div style="position:relative;flex:1;min-width:200px;max-width:400px">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo tên sản phẩm..." style="padding-left:36px" oninput="filterProducts()"/>
+                <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa"></i>
+            </div>
+            <select id="filterCategory" class="form-select" style="width:auto" onchange="filterProducts()">
+                <option value="">Tất cả hãng</option>
+                <option value="Apple">Apple</option>
+                <option value="SamSung">SamSung</option>
+                <option value="Xiaomi">Xiaomi</option>
+                <option value="Oppo">Oppo</option>
+                <option value="Vivo">Vivo</option>
+                <option value="Realme">Realme</option>
+            </select>
+            <div style="margin-left:auto;color:#888;font-size:13px">
+                Tổng: <b id="productCount">0</b> sản phẩm
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:60px">Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Hãng</th>
+                    <th>Giá</th>
+                    <th>Giảm</th>
+                    <th>Kho</th>
+                    <th style="text-align:right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="productTable">
+                <tr><td colspan="7" class="loading">Đang tải...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script src="../js/api.js"></script>
+<script src="admin-shared.js"></script>
+<script>
+let allProducts = [];
+let variantMap = {};
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+async function loadProducts() {
+    try {
+        allProducts = await http(`${API.product}/api/products`);
+        const vResults = await Promise.all(allProducts.map(async p => {
+            try { return [String(p.id), await http(`${API.product}/api/products/${p.id}/variants`) || []]; }
+            catch (_) { return [String(p.id), []]; }
+        }));
+        variantMap = Object.fromEntries(vResults);
+        filterProducts();
+    } catch (err) {
+        document.getElementById('productTable').innerHTML =
+            `<tr><td colspan="7" class="empty-state"><i class="fas fa-exclamation-circle"></i><br>Lỗi: ${err.message}</td></tr>`;
+    }
+}
+
+function filterProducts() {
+    const kw = document.getElementById('searchInput').value.toLowerCase().trim();
+    const cat = document.getElementById('filterCategory').value;
+
+    let list = allProducts.slice();
+    if (kw) list = list.filter(p => (p.name || '').toLowerCase().includes(kw));
+    if (cat) list = list.filter(p => p.category === cat);
+
+    document.getElementById('productCount').textContent = list.length;
+
+    const tbody = document.getElementById('productTable');
+    if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><br>Không có sản phẩm</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = list.map(p => {
+        const stockClass = p.stock > 20 ? '' : (p.stock > 0 ? 'low' : 'out');
+        const variants = variantMap[String(p.id)] || [];
+        const colors = [...new Set(variants.map(v => (v.color || '').trim()).filter(Boolean))];
+        return `
+            <tr>
+                <td><img src="${imgUrl(p.image)}" class="product-img" onerror="this.src='https://via.placeholder.com/52'" onclick="showProductImg('${imgUrl(p.image)}')"/></td>
+                <td>
+                    <div style="font-weight:600">${esc(p.name)}</div>
+                    <div style="font-size:11px;color:#888">${esc(p.ram || '')} ${p.storage ? '· ' + esc(p.storage) : ''}</div>
+                    ${colors.length ? `<div style="font-size:11px;color:#888">${esc(colors.join(' · '))}</div>` : ''}
+                </td>
+                <td><span class="badge badge-role-user">${esc(p.category || '-')}</span></td>
+                <td class="price">${formatPrice(p.price)}</td>
+                <td>${p.discount > 0 ? `<span class="badge badge-disc">-${formatPrice(p.discount)}</span>` : '-'}</td>
+                <td>
+                    <span class="badge badge-stock ${stockClass}">${p.stock || 0}</span>
+                    ${variants.length ? `<div style="font-size:10px;color:#888;margin-top:2px">${variants.length} phiên bản</div>` : ''}
+                </td>
+                <td style="text-align:right">
+                    <button class="btn-info" onclick="viewProduct('${p.id}')" title="Xem"><i class="fas fa-eye"></i></button>
+                    <button class="btn-warn" onclick="showEditProduct('${p.id}')" title="Sửa"><i class="fas fa-edit"></i></button>
+                    <button class="btn-del" onclick="deleteProduct('${p.id}', '${esc(p.name || '').replace(/'/g, '\\\'')}')"  title="Xóa"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function showProductImg(src) {
+    showModal(`
+        <div class="modal-header-x">
+            <h3><i class="fas fa-image"></i> Ảnh sản phẩm</h3>
+            <button class="modal-close-x" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body-x" style="text-align:center">
+            <img src="${src}" style="max-width:100%;max-height:60vh"/>
+        </div>
+    `);
+}
+
+function viewProduct(id) {
+    const p = allProducts.find(x => String(x.id) === String(id));
+    if (!p) return;
+    const vs = variantMap[String(id)] || [];
+    const variantHtml = vs.length ? `
+        <div style="margin-top:16px;border-top:1px solid #eee;padding-top:14px">
+            <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:8px">PHIÊN BẢN (${vs.length})</div>
+            <table style="width:100%;font-size:12px;border:1px solid #eee;border-radius:8px;overflow:hidden">
+                <thead><tr style="background:#fafafa;border-bottom:1px solid #eee">
+                    <th style="padding:6px 10px;text-align:left">SKU</th>
+                    <th style="padding:6px 10px;text-align:left">Màu / RAM / Dung lượng</th>
+                    <th style="padding:6px 10px;text-align:center">Tồn kho</th>
+                    <th style="padding:6px 10px;text-align:right">Chênh giá</th>
+                </tr></thead>
+                <tbody>${vs.map(v => {
+                    const label = [v.color, v.ram, v.storage].filter(Boolean).join(' ') || '-';
+                    const level = (v.stock||0) <= 0 ? 'out' : (v.stock||0) <= 5 ? 'low' : '';
+                    return `<tr style="border-bottom:1px dashed #eee">
+                        <td style="padding:5px 10px"><code style="font-size:11px">${esc(v.sku)}</code></td>
+                        <td style="padding:5px 10px">${esc(label)}</td>
+                        <td style="padding:5px 10px;text-align:center"><span class="badge badge-stock ${level}">${v.stock||0}</span></td>
+                        <td style="padding:5px 10px;text-align:right;color:#888">${v.priceAdjustment ? formatPrice(v.priceAdjustment) : '-'}</td>
+                    </tr>`;
+                }).join('')}</tbody>
+            </table>
+        </div>
+    ` : `<div style="margin-top:14px;padding:10px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404"><i class="fas fa-info-circle"></i> Chưa có phiên bản nào. Quản lý tại <b>Kho & phiên bản</b>.</div>`;
+    showModal(`
+        <div class="modal-header-x">
+            <h3><i class="fas fa-mobile-alt"></i> Chi tiết sản phẩm</h3>
+            <button class="modal-close-x" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body-x">
+            <div style="text-align:center;margin-bottom:20px">
+                <img src="${imgUrl(p.image)}" style="max-width:200px;max-height:200px;border-radius:10px;background:#f5f5f5;padding:10px"/>
+            </div>
+            <h4 style="font-size:16px;font-weight:700;text-align:center;margin-bottom:14px">${esc(p.name)}</h4>
+            <table style="width:100%;font-size:13px">
+                <tr><td style="padding:6px 0;color:#888;width:40%">Hãng:</td><td style="font-weight:600">${esc(p.category || '-')}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">Giá:</td><td class="price">${formatPrice(p.price)}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">Khuyến mãi:</td><td>${p.discount > 0 ? formatPrice(p.discount) : '-'}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">Tồn kho:</td><td><b>${p.stock || 0}</b></td></tr>
+                <tr><td style="padding:6px 0;color:#888">Màn hình:</td><td>${esc(p.screen || '-')}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">RAM:</td><td>${esc(p.ram || '-')}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">Bộ nhớ:</td><td>${esc(p.storage || '-')}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">Pin:</td><td>${esc(p.battery || '-')}</td></tr>
+                <tr><td style="padding:6px 0;color:#888">Mô tả:</td><td>${esc(p.description || '-')}</td></tr>
+            </table>
+            ${variantHtml}
+        </div>
+        <div class="modal-footer-x">
+            <button class="btn-outline" onclick="closeModal()">Đóng</button>
+            <button class="btn-red" onclick="closeModal(); showEditProduct('${p.id}')"><i class="fas fa-edit"></i> Sửa</button>
+        </div>
+    `);
+}
+
+function showCreateProduct() {
+    productForm(null, {});
+}
+
+function showEditProduct(id) {
+    const p = allProducts.find(x => String(x.id) === String(id));
+    if (p) productForm(id, p);
+}
+
+function productForm(id, p) {
+    const title = id ? `Sửa sản phẩm` : 'Thêm sản phẩm mới';
+    showModal(`
+        <div class="modal-header-x">
+            <h3><i class="fas fa-${id ? 'edit' : 'plus'}"></i> ${title}</h3>
+            <button class="modal-close-x" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body-x">
+            <form id="productForm" onsubmit="return submitProduct(event, ${id ? `'${id}'` : 'null'})">
+                <div class="form-grid">
+                    <div class="full">
+                        <label class="form-label">Tên sản phẩm *</label>
+                        <input class="form-control" name="name" required value="${esc(p.name || '')}"/>
+                    </div>
+                    <div>
+                        <label class="form-label">Hãng *</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">-- Chọn hãng --</option>
+                            ${['Apple', 'SamSung', 'Xiaomi', 'Oppo', 'Vivo', 'Realme'].map(c =>
+                                `<option ${p.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Tồn kho *</label>
+                        <input class="form-control" name="stock" type="number" min="0" required value="${p.stock || 0}"/>
+                    </div>
+                    <div>
+                        <label class="form-label">Giá (VND) *</label>
+                        <input class="form-control" name="price" type="number" min="0" required value="${p.price || ''}"/>
+                    </div>
+                    <div>
+                        <label class="form-label">Giảm giá (VND)</label>
+                        <input class="form-control" name="discount" type="number" min="0" value="${p.discount || 0}"/>
+                    </div>
+                    <div class="full">
+                        <label class="form-label">Đường dẫn ảnh</label>
+                        <input class="form-control" name="image" placeholder="/img/file.jpg" value="${p.image || ''}"/>
+                        <small style="color:#888;font-size:11px">VD: /img/1731646750376_s24.jpg (ảnh có sẵn trong folder img/)</small>
+                    </div>
+                    <div>
+                        <label class="form-label">Màn hình</label>
+                        <input class="form-control" name="screen" value="${p.screen || ''}"/>
+                    </div>
+                    <div>
+                        <label class="form-label">RAM</label>
+                        <input class="form-control" name="ram" placeholder="8GB" value="${p.ram || ''}"/>
+                    </div>
+                    <div>
+                        <label class="form-label">Bộ nhớ</label>
+                        <input class="form-control" name="storage" placeholder="256GB" value="${p.storage || ''}"/>
+                    </div>
+                    <div>
+                        <label class="form-label">Pin</label>
+                        <input class="form-control" name="battery" placeholder="5000 mAh" value="${p.battery || ''}"/>
+                    </div>
+                    <div class="full">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="description" rows="3">${esc(p.description || '')}</textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer-x">
+            <button class="btn-outline" onclick="closeModal()">Hủy</button>
+            <button class="btn-red" onclick="document.getElementById('productForm').requestSubmit()"><i class="fas fa-save"></i> Lưu</button>
+        </div>
+    `);
+}
+
+async function submitProduct(e, id) {
+    e.preventDefault();
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form));
+    // Convert sang number
+    ['price', 'discount', 'stock'].forEach(k => {
+        if (data[k] !== undefined && data[k] !== '') data[k] = Number(data[k]);
+        else if (k === 'discount' || k === 'stock') data[k] = 0;
+    });
+    data.status = '1';
+
+    try {
+        if (id) {
+            await http(`${API.product}/api/products/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+            showToast('Cập nhật thành công!', 'success');
+        } else {
+            await http(`${API.product}/api/products`, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+            showToast('Tạo sản phẩm thành công!', 'success');
+        }
+        closeModal();
+        loadProducts();
+    } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+    }
+    return false;
+}
+
+async function deleteProduct(id, name) {
+    if (!confirm(`Xóa sản phẩm "${name}"?`)) return;
+    try {
+        await http(`${API.product}/api/products/${id}`, { method: 'DELETE' });
+        showToast('Đã xóa sản phẩm', 'success');
+        loadProducts();
+    } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!initAdminLayout('product')) return;
+    loadProducts();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Chi tiết sản phẩm – PhoneZone</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Be Vietnam Pro',sans-serif;background:#f5f5f5;color:#333;display:flex;flex-direction:column;min-height:100vh}
+    .main-header{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:1000;padding:10px 0}
+    .container-fluid-mod{max-width:1100px;margin:0 auto;padding:0 24px}
+    .logo-text{font-size:24px;font-weight:800;color:#d70018;letter-spacing:-1px;text-decoration:none;line-height:1}
+    .logo-text span{color:#1a1a2e}
+    .logo-sub{font-size:10px;color:#888;font-weight:500;letter-spacing:2px;text-transform:uppercase}
+    .header-btn{background:#d70018;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .header-btn:hover{background:#b5000f;color:#fff;text-decoration:none}
+    .header-btn-outline{background:#fff;color:#d70018;border:2px solid #d70018;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .header-btn-outline:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-btn{position:relative;background:transparent;border:2px solid #d70018;border-radius:8px;padding:6px 14px;color:#d70018;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .cart-btn:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-count{position:absolute;top:-8px;right:-8px;background:#d70018;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .page-wrap{max-width:1000px;margin:0 auto;padding:24px 16px;flex:1}
+    .section-card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:20px}
+    .breadcrumb-nav{font-size:13px;color:#666;margin-bottom:16px}
+    .breadcrumb-nav a{color:#d70018;text-decoration:none}
+    .product-img{width:100%;max-height:400px;object-fit:contain;border-radius:10px;transition:.3s;background:#fafafa;padding:10px}
+    .product-img:hover{transform:scale(1.02)}
+    .product-title{font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:12px}
+    .price-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+    .price-row .price{font-size:28px;color:#d70018;font-weight:800}
+    .price-row .old-price{font-size:16px;color:#999;text-decoration:line-through}
+    .disc-badge{background:#d70018;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:5px}
+    .specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f8f8f8;border-radius:10px;padding:16px;margin-bottom:16px}
+    .spec-item{display:flex;flex-direction:column;gap:2px}
+    .spec-label{font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+    .spec-val{font-size:14px;font-weight:600;color:#1a1a2e}
+    .desc{font-size:13px;color:#666;margin-bottom:16px;line-height:1.7}
+    .qty-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+    .qty-label{font-size:13px;font-weight:600;color:#555}
+    .qty-controls{display:inline-flex;align-items:center;border:2px solid #eee;border-radius:8px;overflow:hidden}
+    .qty-controls button{background:#fff;border:none;width:36px;height:36px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s}
+    .qty-controls button:hover{background:#f5f5f5;color:#d70018}
+    .qty-controls input{width:50px;text-align:center;border:none;border-left:2px solid #eee;border-right:2px solid #eee;height:36px;font-size:14px;font-weight:600;outline:none}
+    .stock-info{font-size:12px;color:#27ae60;font-weight:600}
+    .stock-info.out{color:#e74c3c}
+    .action-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+    .btn-red{flex:1;background:#d70018;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:14px;font-weight:700;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.2s;min-width:160px}
+    .btn-red:hover{background:#b5000f;color:#fff;text-decoration:none}
+    .btn-red:disabled{background:#aaa;cursor:not-allowed}
+    .btn-outline-red{flex:1;background:#fff;color:#d70018;border:2px solid #d70018;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.2s;min-width:160px}
+    .btn-outline-red:hover{background:#d70018;color:#fff;text-decoration:none}
+    .trust-list{list-style:none;padding:0;margin:0;border-top:1px solid #f0f0f0;padding-top:14px}
+    .trust-list li{display:flex;align-items:center;gap:8px;font-size:13px;color:#555;padding:5px 0}
+    .trust-list li i{color:#d70018;width:16px}
+    .page-title{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;gap:8px}
+    .page-title::before{content:'';width:4px;height:20px;background:#d70018;border-radius:2px;flex-shrink:0}
+    .loading{text-align:center;padding:60px 20px;color:#999}
+    .comment-item{padding:14px 0;border-bottom:1px solid #eee}.comment-item:last-child{border-bottom:none}.comment-author{font-weight:700;color:#1a1a2e;font-size:13px}.comment-date{font-size:11px;color:#999;margin-left:8px}.comment-message{font-size:13px;color:#555;white-space:pre-wrap;margin-top:5px}.comment-input{width:100%;min-height:90px;border:1px solid #ddd;border-radius:8px;padding:10px;font:inherit;font-size:13px;resize:vertical}.comment-empty{font-size:13px;color:#888;padding:8px 0}
+    footer{background:#1a1a2e;color:#9ca3af;padding:14px 0;margin-top:auto}
+    footer .container-fluid-mod{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+    .footer-brand{font-size:18px;font-weight:800;color:#fff}
+    .footer-brand span{color:#d70018}
+    footer a{color:#9ca3af;text-decoration:none;font-size:12px;margin-left:14px}
+    footer a:hover{color:#d70018}
+  </style>
+</head>
+<body>
+<header class="main-header">
+  <div class="container-fluid-mod">
+    <div class="d-flex align-items-center" style="gap:16px">
+      <a href="index.html" class="text-decoration-none" style="flex-shrink:0">
+        <div class="logo-text">Phone<span>Zone</span></div>
+        <div class="logo-sub">Điện thoại chính hãng</div>
+      </a>
+      <div style="flex:1"></div>
+      <div class="d-flex align-items-center" style="gap:8px" id="userArea">
+        <!-- filled by api.js -->
+      </div>
+      <a href="cart.html" class="cart-btn">
+        <i class="fas fa-shopping-cart"></i> Giỏ hàng
+        <span class="cart-count" id="cartBadge" style="display:none">0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="breadcrumb-nav">
+    <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
+    <span> / </span>
+    <a href="search.html">Sản phẩm</a>
+    <span> / </span>
+    <span id="bcName">Chi tiết</span>
+  </div>
+
+  <div id="productContent">
+    <div class="loading"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:#d70018"></i><p style="margin-top:14px">Đang tải sản phẩm...</p></div>
+  </div>
+</div>
+
+<footer>
+  <div class="container-fluid-mod">
+    <div class="footer-brand">Phone<span>Zone</span></div>
+    <div>
+      <a href="index.html">Trang chủ</a>
+      <a href="#">Chính sách</a>
+      <a href="#">Liên hệ</a>
+    </div>
+    <div style="font-size:11px">© 2024 PhoneZone</div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+// Lấy id từ URL ?id=...
+function getProductId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id');
+}
+
+async function loadProduct() {
+    const id = getProductId();
+    if (!id) {
+        document.getElementById('productContent').innerHTML =
+            '<div class="section-card" style="text-align:center;padding:40px"><h3>Không tìm thấy sản phẩm</h3><a href="index.html" class="btn-red mt-3">Về trang chủ</a></div>';
+        return;
+    }
+
+    try {
+        // Product details are public; an expired login token must not prevent viewing them.
+        const p = await http(`${API.product}/api/products/${id}`, { anonymous: true });
+        p.variants = await http(`${API.product}/api/products/${id}/variants`, { anonymous: true }).catch(() => []);
+        document.getElementById('bcName').textContent = p.name;
+        document.title = p.name + ' – PhoneZone';
+        renderProduct(p);
+        rememberRecommendationSignal('product_view', {
+            productId: String(p.id), productName: p.name, brand: p.category || '',
+            price: Math.max(0, Number(p.price || 0) - Number(p.discount || 0))
+        });
+        trackBehavior('product_view', { productId: String(p.id), productName: p.name });
+        // Thời gian xem được ghi nhận sau 15 giây ở lại trang, không theo dõi từng giây.
+        setTimeout(() => trackBehavior('product_view_15s', { productId: String(p.id), productName: p.name }), 15000);
+    } catch (err) {
+        document.getElementById('productContent').innerHTML =
+            `<div class="section-card" style="text-align:center;padding:40px">
+                <i class="fas fa-exclamation-circle" style="font-size:40px;color:#e74c3c"></i>
+                <h3 style="margin-top:14px">Không tải được sản phẩm</h3>
+                <p style="color:#999">${err.message}</p>
+                <a href="index.html" class="btn-red mt-3" style="display:inline-flex">Về trang chủ</a>
+            </div>`;
+    }
+}
+
+function renderProduct(p) {
+    const oldPrice = p.price || 0;
+    const finalPrice = Math.max(0, oldPrice - (p.discount || 0));
+    const discountPercent = p.discount && oldPrice
+        ? Math.round((p.discount / oldPrice) * 100) : 0;
+    const stockOk = p.stock > 0;
+    const ratings = (p.comments || []).map(c => Number(c.rating)).filter(r => r >= 1 && r <= 5);
+    const averageRating = ratings.length ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1).replace('.', ',') : null;
+    const reviewMode = new URLSearchParams(location.search).get('review') === '1';
+
+    document.getElementById('productContent').innerHTML = `
+        <div class="section-card">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="${imgUrl(p.image)}" class="product-img" alt="${p.name}"
+                         onerror="this.src='https://via.placeholder.com/400'"/>
+                </div>
+                <div class="col-md-7">
+                    <h1 class="product-title">${p.name}</h1>
+                    <div style="margin:-3px 0 10px;color:#f39c12;font-size:14px;font-weight:700">${averageRating ? `★ ${averageRating}/5 <span style="color:#777;font-size:12px;font-weight:500">(${ratings.length} đánh giá đã mua hàng)</span>` : '<span style="color:#888;font-size:12px;font-weight:500">Chưa có đánh giá đã mua hàng</span>'}</div>
+                    <div class="price-row">
+                        <span class="price">${formatPrice(finalPrice)}</span>
+                        ${p.discount > 0 ? `<span class="old-price">${formatPrice(oldPrice)}</span><span class="disc-badge">Giảm ${discountPercent}%</span>` : ''}
+                    </div>
+                    <div class="specs-grid">
+                        <div class="spec-item"><span class="spec-label">Màn hình</span><span class="spec-val">${p.screen || '–'}</span></div>
+                        <div class="spec-item"><span class="spec-label">RAM</span><span class="spec-val">${p.ram || '–'}</span></div>
+                        <div class="spec-item"><span class="spec-label">Bộ nhớ</span><span class="spec-val">${p.storage || '–'}</span></div>
+                        <div class="spec-item"><span class="spec-label">Pin</span><span class="spec-val">${p.battery || '–'}</span></div>
+                    </div>
+                    ${p.variants && p.variants.length ? `<div style="margin:14px 0"><label for="variant" style="font-weight:700;font-size:13px">Chọn màu / phiên bản</label><select id="variant" onchange="applyVariantStock()" style="width:100%;margin-top:6px;padding:10px;border:1px solid #ddd;border-radius:8px">${p.variants.map(v=>`<option value="${v.id}" data-stock="${v.stock}">${escapeHtml([v.color,v.ram,v.storage].filter(Boolean).join(' · '))} — còn ${v.stock} máy</option>`).join('')}</select></div>` : ''}
+                    ${p.description ? `<p class="desc">${p.description}</p>` : ''}
+
+                    <div class="qty-row">
+                        <span class="qty-label">Số lượng:</span>
+                        <div class="qty-controls">
+                            <button onclick="changeQty(-1)">−</button>
+                            <input type="number" id="qty" value="1" min="1" max="${p.stock || 1}"/>
+                            <button onclick="changeQty(1)">+</button>
+                        </div>
+                        <span class="stock-info ${stockOk ? '' : 'out'}">
+                            ${stockOk ? '✓ Còn ' + p.stock + ' sản phẩm' : '✗ Tạm hết hàng'}
+                        </span>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn-outline-red" onclick="addToCartDetail('${p.id}')" ${stockOk ? '' : 'disabled'}>
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                        </button>
+                        <button class="btn-red" onclick="buyNow('${p.id}')" ${stockOk ? '' : 'disabled'}>
+                            <i class="fas fa-bolt"></i> Mua ngay
+                        </button>
+                    </div>
+
+                    <ul class="trust-list">
+                        <li><i class="fas fa-shield-alt"></i>Sản phẩm chính hãng 100%</li>
+                        <li><i class="fas fa-undo"></i>Bảo hành 12 tháng</li>
+                        <li><i class="fas fa-exchange-alt"></i>Đổi trả trong 30 ngày</li>
+                        <li><i class="fas fa-truck"></i>Giao hàng toàn quốc</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="section-card">
+            <h3 class="page-title"><i class="fas fa-star"></i> Đánh giá từ khách đã mua</h3>
+            <div id="commentsList">${renderComments(p.comments || [])}</div>
+            ${Auth.user && reviewMode ? `
+              <form onsubmit="submitComment(event, '${p.id}')" style="margin-top:16px">
+                <div style="background:#fff8df;border-radius:8px;padding:9px 11px;font-size:12px;color:#7b5c00;margin-bottom:10px"><i class="fas fa-circle-check"></i> Bạn đang đánh giá sản phẩm đã mua. Mỗi tài khoản chỉ có một đánh giá và có thể cập nhật lại.</div>
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><label for="commentRating" style="font-size:12px;font-weight:700;margin:0">Số sao</label><select id="commentRating" required style="border:1px solid #ddd;border-radius:7px;padding:7px;font-size:12px"><option value="5">★★★★★ · Rất hài lòng</option><option value="4">★★★★☆ · Hài lòng</option><option value="3">★★★☆☆ · Bình thường</option><option value="2">★★☆☆☆ · Chưa hài lòng</option><option value="1">★☆☆☆☆ · Không hài lòng</option></select></div>
+                <textarea id="commentMessage" class="comment-input" maxlength="1000" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                <button class="btn-red" style="margin-top:10px;max-width:220px" type="submit"><i class="fas fa-paper-plane"></i> Gửi / cập nhật đánh giá</button>
+              </form>` : `
+              <p class="comment-empty">Chỉ khách đã mua và nhận sản phẩm mới có thể đánh giá từ mục <b>Đơn hàng của tôi</b>.</p>`}
+        </div>
+    `;
+    applyVariantStock();
+}
+
+function escapeHtml(value) {
+    const box = document.createElement('div');
+    box.textContent = value || '';
+    return box.innerHTML;
+}
+
+function renderComments(comments) {
+    const reviews = comments.filter(c => Number(c.rating) >= 1 && Number(c.rating) <= 5);
+    if (!reviews.length) return '<p class="comment-empty">Chưa có đánh giá đã mua hàng nào.</p>';
+    return reviews.slice().reverse().map(c => `
+        <div class="comment-item">
+            <span class="comment-author"><i class="fas fa-user-circle"></i> ${escapeHtml(c.username || 'Khách hàng')}</span>
+            ${c.rating ? `<span style="color:#f39c12;margin-left:6px;font-size:12px">${'★'.repeat(c.rating)}${'☆'.repeat(5-c.rating)}</span>` : ''}
+            <span class="comment-date">${c.createDate ? new Date(c.createDate).toLocaleString('vi-VN') : ''}</span>
+            <div class="comment-message">${escapeHtml(c.message)}</div>
+        </div>`).join('');
+}
+
+async function submitComment(event, productId) {
+    event.preventDefault();
+    const input = document.getElementById('commentMessage');
+    const message = input.value.trim();
+    if (!message) return showToast('Vui lòng nhập nội dung bình luận', 'warning');
+    try {
+        const rating = Number(document.getElementById('commentRating')?.value || 0) || null;
+        await http(`${API.product}/api/products/${productId}/comments`, {
+            method: 'POST', body: JSON.stringify({ message, rating })
+        });
+        showToast('Đã gửi bình luận', 'success');
+        await loadProduct();
+    } catch (err) {
+        showToast('Không thể gửi bình luận: ' + err.message, 'error');
+    }
+}
+
+function changeQty(delta) {
+    const input = document.getElementById('qty');
+    const max = parseInt(input.max);
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    if (val > max) val = max;
+    input.value = val;
+}
+
+function applyVariantStock() {
+    const option = document.getElementById('variant')?.selectedOptions[0];
+    const stock = Number(option?.dataset.stock || 0); const qty = document.getElementById('qty');
+    if (!qty) return; qty.max = Math.max(1, stock); if (Number(qty.value) > stock) qty.value = Math.max(1, stock);
+    const info = document.querySelector('.stock-info'); if (info) { info.textContent = stock > 0 ? `✓ Còn ${stock} máy của phiên bản này` : '✗ Phiên bản này đã hết hàng'; info.classList.toggle('out', stock <= 0); }
+}
+
+async function addToCartDetail(productId) {
+    const qty = parseInt(document.getElementById('qty').value);
+    if (isNaN(qty) || qty < 1) { showToast('Vui lòng chọn số lượng hợp lệ', 'warning'); return; }
+    const variantSelect = document.getElementById('variant');
+    const variantId = variantSelect?.value || null;
+    if (variantSelect) {
+        const stock = Number(variantSelect.selectedOptions[0]?.dataset.stock || 0);
+        if (stock <= 0) { showToast('Phiên bản này đã hết hàng', 'warning'); return; }
+        if (qty > stock) { showToast(`Chỉ còn ${stock} máy. Vui lòng chọn lại số lượng`, 'warning'); return; }
+    }
+    await addToCart(productId, qty, variantId);
+}
+
+async function buyNow(productId) {
+    const qty = parseInt(document.getElementById('qty').value);
+    if (isNaN(qty) || qty < 1) { showToast('Vui lòng chọn số lượng hợp lệ', 'warning'); return; }
+    const variantSelect = document.getElementById('variant');
+    const variantId = variantSelect?.value || null;
+    if (variantSelect) {
+        const stock = Number(variantSelect.selectedOptions[0]?.dataset.stock || 0);
+        if (stock <= 0) { showToast('Phiên bản này đã hết hàng', 'warning'); return; }
+        if (qty > stock) { showToast(`Chỉ còn ${stock} máy. Vui lòng chọn lại số lượng`, 'warning'); return; }
+    }
+    const ok = await addToCart(productId, qty, variantId);
+    if (ok) setTimeout(() => window.location.href = 'cart.html', 600);
+}
+
+document.addEventListener('DOMContentLoaded', loadProduct);
+</script>
+</body></html>

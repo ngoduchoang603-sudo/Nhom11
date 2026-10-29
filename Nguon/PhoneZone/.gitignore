@@ -1,0 +1,32 @@
+# Maven
+target/
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+nbproject/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+
+# Quarkus
+.quarkus/
+quarkus.log
+
+# Docker
+.docker/

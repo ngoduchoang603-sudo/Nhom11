@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Tìm kiếm – PhoneZone</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Be Vietnam Pro',sans-serif;background:#f5f5f5;color:#333;display:flex;flex-direction:column;min-height:100vh}
+    .main-header{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:1000;padding:10px 0}
+    .container-fluid-mod{max-width:1200px;margin:0 auto;padding:0 24px}
+    .logo-text{font-size:24px;font-weight:800;color:#d70018;letter-spacing:-1px;text-decoration:none;line-height:1}
+    .logo-text span{color:#1a1a2e}
+    .logo-sub{font-size:10px;color:#888;font-weight:500;letter-spacing:2px;text-transform:uppercase}
+    .search-bar{flex:1;max-width:500px;position:relative}
+    .search-bar input{width:100%;border:2px solid #d70018;border-radius:24px;padding:9px 50px 9px 18px;font-size:14px;font-family:'Be Vietnam Pro',sans-serif;outline:none}
+    .search-bar button{position:absolute;right:0;top:0;height:100%;padding:0 18px;background:#d70018;border:none;border-radius:0 24px 24px 0;color:#fff;cursor:pointer}
+    .header-btn{background:#d70018;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .header-btn:hover{background:#b5000f;color:#fff;text-decoration:none}
+    .header-btn-outline{background:#fff;color:#d70018;border:2px solid #d70018;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .header-btn-outline:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-btn{position:relative;background:transparent;border:2px solid #d70018;border-radius:8px;padding:6px 14px;color:#d70018;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .cart-btn:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-count{position:absolute;top:-8px;right:-8px;background:#d70018;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+    .page-wrap{max-width:1200px;margin:0 auto;padding:20px 16px;flex:1}
+    .page-title{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+    .page-title::before{content:'';width:4px;height:24px;background:#d70018;border-radius:2px}
+
+    .filters{background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .filter-group{display:flex;align-items:center;gap:8px}
+    .filter-label{font-size:13px;color:#555;font-weight:600}
+    .filter-select{padding:7px 32px 7px 12px;border:1.5px solid #eee;border-radius:6px;font-size:13px;font-weight:500;background:#fff;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;outline:none}
+    .filter-select:focus{border-color:#d70018}
+    .result-count{color:#666;font-size:13px;margin-left:auto}
+
+    .brand-tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:6px}
+    .brand-tab{background:#fff;border:1.5px solid #eee;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;color:#444;text-decoration:none;white-space:nowrap;transition:.2s;cursor:pointer}
+    .brand-tab:hover{background:#fff5f5;border-color:#d70018;color:#d70018;text-decoration:none}
+    .brand-tab.active{background:#d70018;color:#fff;border-color:#d70018}
+
+    .product-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+    .product-card{background:#fff;border-radius:10px;overflow:hidden;border:1.5px solid #f0f0f0;transition:all .2s;position:relative;display:flex;flex-direction:column}
+    .product-card:hover{border-color:#d70018;box-shadow:0 4px 16px rgba(215,0,24,.12);transform:translateY(-2px)}
+    .product-card .badge-discount{position:absolute;top:8px;left:8px;background:#d70018;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;z-index:1}
+    .product-card .img-wrap{height:160px;display:flex;align-items:center;justify-content:center;padding:12px;background:#fafafa}
+    .product-card .img-wrap img{max-height:136px;max-width:100%;object-fit:contain}
+    .product-card .card-body{padding:10px 12px 12px;flex:1;display:flex;flex-direction:column}
+    .product-card .card-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+    .product-card .card-specs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}
+    .product-card .spec-tag{font-size:10px;background:#f0f0f0;color:#666;padding:2px 6px;border-radius:3px;font-weight:500}
+    .product-card .card-price{font-size:15px;font-weight:700;color:#d70018;margin-bottom:8px}
+    .product-card .card-btns{display:flex;gap:6px}
+    .product-card .btn-detail{flex:1;background:#fff;border:1.5px solid #d70018;color:#d70018;border-radius:6px;font-size:12px;font-weight:600;padding:6px 0;text-align:center;text-decoration:none;font-family:'Be Vietnam Pro',sans-serif;transition:.2s}
+    .product-card .btn-detail:hover{background:#d70018;color:#fff;text-decoration:none}
+    .product-card .btn-cart{background:#d70018;border:1.5px solid #d70018;color:#fff;border-radius:6px;font-size:12px;padding:6px 10px;text-decoration:none;transition:.2s;cursor:pointer}
+    .product-card .btn-cart:hover{background:#b5000f;color:#fff}
+
+    .empty{text-align:center;padding:60px 20px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .empty i{font-size:60px;color:#ddd;margin-bottom:12px}
+    .empty h3{color:#666;font-weight:600;margin-bottom:8px}
+
+    .loading{text-align:center;padding:60px 20px;color:#999;grid-column:1/-1}
+    footer{background:#1a1a2e;color:#9ca3af;padding:14px 0;margin-top:auto}
+    footer .container-fluid-mod{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+    .footer-brand{font-size:18px;font-weight:800;color:#fff}
+    .footer-brand span{color:#d70018}
+    footer a{color:#9ca3af;text-decoration:none;font-size:12px;margin-left:14px}
+    footer a:hover{color:#d70018}
+
+    @media(max-width:900px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:600px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<header class="main-header">
+  <div class="container-fluid-mod">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <a href="index.html" class="text-decoration-none" style="flex-shrink:0">
+        <div class="logo-text">Phone<span>Zone</span></div>
+        <div class="logo-sub">Điện thoại chính hãng</div>
+      </a>
+      <div class="search-bar">
+        <form onsubmit="return doSearchBox(event)">
+          <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..."/>
+          <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto" id="userArea"></div>
+      <a href="cart.html" class="cart-btn">
+        <i class="fas fa-shopping-cart"></i> Giỏ hàng
+        <span class="cart-count" id="cartBadge" style="display:none">0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <h1 class="page-title"><i class="fas fa-search" style="color:#d70018"></i> <span id="pageTitle">Sản phẩm</span></h1>
+
+  <div class="brand-tabs">
+    <a class="brand-tab" onclick="setBrand('')">Tất cả</a>
+    <a class="brand-tab" onclick="setBrand('Apple')">iPhone</a>
+    <a class="brand-tab" onclick="setBrand('SamSung')">Samsung</a>
+    <a class="brand-tab" onclick="setBrand('Xiaomi')">Xiaomi</a>
+    <a class="brand-tab" onclick="setBrand('Oppo')">OPPO</a>
+    <a class="brand-tab" onclick="setBrand('Vivo')">Vivo</a>
+    <a class="brand-tab" onclick="setBrand('Realme')">Realme</a>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label">Sắp xếp:</span>
+      <select class="filter-select" id="sortSelect" onchange="applyFilters()">
+        <option value="">Mặc định</option>
+        <option value="ORDER_PRICE">Giá thấp đến cao</option>
+        <option value="DECS_PRICE">Giá cao đến thấp</option>
+        <option value="NEW">Mới nhất</option>
+        <option value="SALE">Giảm giá nhiều</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Giá:</span>
+      <select class="filter-select" id="priceSelect" onchange="applyFilters()">
+        <option value="">Tất cả</option>
+        <option value="0-5000000">Dưới 5 triệu</option>
+        <option value="5000000-10000000">5 - 10 triệu</option>
+        <option value="10000000-20000000">10 - 20 triệu</option>
+        <option value="20000000-999999999">Trên 20 triệu</option>
+      </select>
+    </div>
+    <div class="result-count" id="resultCount"></div>
+  </div>
+
+  <div class="product-grid" id="productGrid">
+    <div class="loading"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:#d70018"></i><p style="margin-top:14px">Đang tải...</p></div>
+  </div>
+</div>
+
+<footer>
+  <div class="container-fluid-mod">
+    <div class="footer-brand">Phone<span>Zone</span></div>
+    <div><a href="index.html">Trang chủ</a><a href="#">Chính sách</a></div>
+    <div style="font-size:11px">© 2024 PhoneZone</div>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script>
+const state = {
+    products: [],
+    currentBrand: '',
+    keyword: '',
+    sortBy: '',
+    priceRange: ''
+};
+
+function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name) || '';
+}
+
+function setBrand(brand) {
+    state.currentBrand = brand;
+    document.querySelectorAll('.brand-tab').forEach(t => t.classList.remove('active'));
+    if (event && event.target) event.target.classList.add('active');
+    applyFilters();
+}
+
+function doSearchBox(e) {
+    e.preventDefault();
+    state.keyword = document.getElementById('searchInput').value.trim();
+    if (state.keyword) {
+        rememberRecommendationSignal('search', { searchQuery: state.keyword });
+        trackBehavior('search', { searchQuery: state.keyword });
+    }
+    applyFilters();
+    return false;
+}
+
+function productCard(p) {
+    const oldPrice = p.price || 0;
+    const finalPrice = Math.max(0, oldPrice - (p.discount || 0));
+    const discountPercent = p.discount && oldPrice ? Math.round((p.discount / oldPrice) * 100) : 0;
+
+    const specs = [];
+    if (p.ram) specs.push(`<span class="spec-tag">${p.ram}</span>`);
+    if (p.storage) specs.push(`<span class="spec-tag">${p.storage}</span>`);
+
+    return `
+        <div class="product-card">
+            ${discountPercent > 0 ? `<div class="badge-discount">Giảm ${discountPercent}%</div>` : ''}
+            <div class="img-wrap">
+                <img src="${imgUrl(p.image)}" onerror="this.src='https://via.placeholder.com/150x150'"/>
+            </div>
+            <div class="card-body">
+                <div class="card-name">${p.name}</div>
+                <div class="card-specs">${specs.join('')}</div>
+                <div class="card-price">${formatPrice(finalPrice)}</div>
+                ${discountPercent > 0 ? `<div style="font-size:11px;color:#999;text-decoration:line-through;margin-top:-5px;margin-bottom:7px">${formatPrice(oldPrice)}</div>` : ''}
+                <div class="card-btns">
+                    <a href="product-detail.html?id=${p.id}" class="btn-detail">Chi tiết</a>
+                    <button data-id="${p.id}" class="btn-cart" onclick="addToCartBtn(this)">
+                        <i class="fas fa-cart-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function addToCartBtn(btn) {
+    const id = btn.getAttribute('data-id');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    await addToCart(id, 1);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+}
+
+async function loadAllProducts() {
+    try {
+        state.products = await http(`${API.product}/api/products`) || [];
+        applyFilters();
+    } catch (err) {
+        document.getElementById('productGrid').innerHTML =
+            `<div class="empty" style="grid-column:1/-1"><i class="fas fa-exclamation-circle"></i><h3>Không tải được sản phẩm</h3><p>${err.message}</p></div>`;
+    }
+}
+
+function applyFilters() {
+    const sort = document.getElementById('sortSelect').value;
+    const priceRange = document.getElementById('priceSelect').value;
+    state.sortBy = sort;
+    state.priceRange = priceRange;
+
+    let list = state.products.slice();
+
+    // Filter brand
+    if (state.currentBrand) {
+        list = list.filter(p => (p.category || '').toLowerCase() === state.currentBrand.toLowerCase());
+    }
+
+    // Filter keyword
+    if (state.keyword) {
+        const kw = state.keyword.toLowerCase();
+        list = list.filter(p =>
+            (p.name || '').toLowerCase().includes(kw) ||
+            (p.description || '').toLowerCase().includes(kw)
+        );
+    }
+
+    // Filter price
+    if (priceRange) {
+        const [min, max] = priceRange.split('-').map(Number);
+        list = list.filter(p => { const sale = Math.max(0, (p.price||0) - (p.discount||0)); return sale >= min && sale <= max; });
+    }
+
+    // Sort
+    switch (sort) {
+        case 'ORDER_PRICE': list.sort((a, b) => (Math.max(0,(a.price||0)-(a.discount||0))) - (Math.max(0,(b.price||0)-(b.discount||0)))); break;
+        case 'DECS_PRICE': list.sort((a, b) => (Math.max(0,(b.price||0)-(b.discount||0))) - (Math.max(0,(a.price||0)-(a.discount||0)))); break;
+        case 'SALE': list.sort((a, b) => (b.discount || 0) - (a.discount || 0)); break;
+        case 'NEW': list.sort((a, b) => new Date(b.createDate || 0) - new Date(a.createDate || 0)); break;
+    }
+
+    // Update count
+    document.getElementById('resultCount').textContent = `Tìm thấy ${list.length} sản phẩm`;
+
+    const grid = document.getElementById('productGrid');
+    if (list.length === 0) {
+        grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><i class="fas fa-search"></i><h3>Không có sản phẩm phù hợp</h3><p>Thử bộ lọc khác</p></div>';
+    } else {
+        grid.innerHTML = list.map(productCard).join('');
+    }
+
+    // Update page title
+    let title = 'Sản phẩm';
+    if (state.keyword) title = `Kết quả tìm "${state.keyword}"`;
+    else if (state.currentBrand) title = `Điện thoại ${state.currentBrand}`;
+    document.getElementById('pageTitle').textContent = title;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Read URL params
+    state.currentBrand = getParam('brand');
+    state.keyword = getParam('q') || getParam('name');
+
+    if (state.keyword) {
+        document.getElementById('searchInput').value = state.keyword;
+        rememberRecommendationSignal('search', { searchQuery: state.keyword });
+        trackBehavior('search', { searchQuery: state.keyword });
+    }
+
+    // Highlight active brand tab
+    if (state.currentBrand) {
+        document.querySelectorAll('.brand-tab').forEach(t => {
+            if (t.textContent.toLowerCase() === state.currentBrand.toLowerCase()
+                || (state.currentBrand === 'Apple' && t.textContent === 'iPhone')
+                || (state.currentBrand === 'SamSung' && t.textContent === 'Samsung')
+                || (state.currentBrand === 'Oppo' && t.textContent === 'OPPO')) {
+                t.classList.add('active');
+            }
+        });
+    } else {
+        document.querySelector('.brand-tab').classList.add('active');
+    }
+
+    loadAllProducts();
+});
+</script>
+</body></html>

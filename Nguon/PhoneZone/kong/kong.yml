@@ -1,0 +1,35 @@
+_format_version: "3.0"
+_transform: true
+
+# Kong is deliberately DB-less: this configuration is versioned with the application.
+services:
+  - name: shop-api
+    url: http://api-gateway:8080
+    routes:
+      - name: shop-public-api
+        paths: ["/api"]
+        strip_path: false
+      - name: shop-web
+        paths: ["/"]
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 90
+          policy: local
+      - name: correlation-id
+        config:
+          header_name: X-Correlation-Id
+          generator: uuid
+          echo_downstream: true
+  - name: ai-service
+    url: http://ai-service:8085
+    routes:
+      - name: ai-chat
+        paths: ["/ai"]
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 12
+          policy: local

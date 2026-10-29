@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Dashboard – PhoneZone Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<nav class="sidebar" id="sidebar"></nav>
+<main class="main">
+    <div class="page-header">
+        <h1><i class="fas fa-chart-pie"></i> Dashboard</h1>
+        <div style="display:flex;gap:8px">
+            <button class="btn-outline" onclick="loadStats()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row-g grid-stats" style="margin-bottom:20px">
+        <div class="stat-card">
+            <div class="stat-icon" style="color:#3498db">👥</div>
+            <div class="stat-num" id="statUser">-</div>
+            <div class="stat-lbl">Người dùng</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="color:#d70018">📱</div>
+            <div class="stat-num" id="statProduct">-</div>
+            <div class="stat-lbl">Sản phẩm</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="color:#f39c12"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-num" id="statOrder">-</div>
+            <div class="stat-lbl">Đơn hàng</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="color:#27ae60">💰</div>
+            <div class="stat-num price" id="statRevenue">-</div>
+            <div class="stat-lbl">Doanh thu</div>
+        </div>
+    </div>
+    <div class="row-g grid-stats" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-icon" style="color:#27ae60"><i class="fas fa-calendar-day"></i></div><div class="stat-num price" id="statTodayRevenue">-</div><div class="stat-lbl">Doanh thu hôm nay</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#3498db"><i class="fas fa-receipt"></i></div><div class="stat-num" id="statTodayOrder">-</div><div class="stat-lbl">Đơn hàng hôm nay</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#f39c12"><i class="fas fa-triangle-exclamation"></i></div><div class="stat-num" id="statLowStock">-</div><div class="stat-lbl">Sản phẩm sắp hết kho</div></div>
+        <div class="stat-card"><div class="stat-icon" style="color:#d70018"><i class="fas fa-hourglass-half"></i></div><div class="stat-num" id="statPending">-</div><div class="stat-lbl">Đơn chờ xử lý</div></div>
+    </div>
+
+    <div class="row-g" style="grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="card-box"><h3 class="chart-title"><i class="fas fa-chart-line"></i> Doanh thu 7 ngày gần nhất</h3><canvas id="revenueChart" height="120"></canvas></div>
+        <div class="card-box"><h3 class="chart-title"><i class="fas fa-chart-pie"></i> Trạng thái đơn</h3><canvas id="orderChart" height="160"></canvas></div>
+    </div>
+    <div class="row-g" style="grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="card-box"><h3 class="chart-title"><i class="fas fa-mobile-screen"></i> Top sản phẩm theo doanh thu</h3><canvas id="productChart" height="145"></canvas></div>
+        <div class="card-box"><h3 class="chart-title"><i class="fas fa-building"></i> Doanh thu theo thương hiệu</h3><canvas id="brandChart" height="145"></canvas></div>
+    </div>
+
+    <div class="card-box" style="margin-bottom:20px">
+        <h3 style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <i class="fas fa-bell" style="color:#d70018"></i> Cần xử lý
+        </h3>
+        <div class="row-g grid-cards" id="actionCards">
+            <div class="loading">Đang tải...</div>
+        </div>
+    </div>
+
+    <!-- Recent Orders + Status Breakdown -->
+    <div class="row-g" style="grid-template-columns:2fr 1fr;gap:16px">
+        <div class="card-box">
+            <h3 style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+                <i class="fas fa-clock-rotate-left" style="color:#d70018"></i>
+                5 đơn hàng mới nhất
+            </h3>
+            <table id="recentOrders">
+                <thead>
+                    <tr><th>Mã</th><th>Khách</th><th>Tổng tiền</th><th>Trạng thái</th><th>Ngày</th></tr>
+                </thead>
+                <tbody><tr><td colspan="5" class="loading">Đang tải...</td></tr></tbody>
+            </table>
+        </div>
+        <div class="card-box">
+            <h3 style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+                <i class="fas fa-chart-bar" style="color:#d70018"></i>
+                Trạng thái đơn hàng
+            </h3>
+            <div id="statusBreakdown" style="display:flex;flex-direction:column;gap:10px">
+                <div class="loading">Đang tải...</div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="../js/api.js"></script>
+<script src="admin-shared.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+let charts = {};
+function drawChart(id, config) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), config); }
+function formatShort(value) { return new Intl.NumberFormat('vi-VN',{notation:'compact',maximumFractionDigits:1}).format(value || 0) + 'đ'; }
+async function loadStats() {
+    try {
+        // Tai song song tat ca stat
+        const [users, products, orders] = await Promise.all([
+            http(`${API.user}/api/users`).catch(() => []),
+            http(`${API.product}/api/products`).catch(() => []),
+            http(`${API.order}/api/orders`).catch(() => [])
+        ]);
+
+        document.getElementById('statUser').textContent = users.length;
+        document.getElementById('statProduct').textContent = products.length;
+        document.getElementById('statOrder').textContent = orders.length;
+
+        // Doanh thu chỉ tính đơn đã giao thành công, không tính đơn đang xử lý.
+        const revenue = orders
+            .filter(o => o.status === 'DELIVERED')
+            .reduce((s, o) => s + (o.total || 0), 0);
+        document.getElementById('statRevenue').textContent = formatPrice(revenue);
+        const today = new Date(); today.setHours(0,0,0,0);
+        const todayOrders = orders.filter(o => o.date && new Date(o.date) >= today);
+        const todayRevenue = todayOrders.filter(o => o.status === 'DELIVERED').reduce((sum,o) => sum + (o.total||0), 0);
+        document.getElementById('statTodayRevenue').textContent = formatPrice(todayRevenue);
+        document.getElementById('statTodayOrder').textContent = todayOrders.length;
+        document.getElementById('statLowStock').textContent = products.filter(p => (p.stock||0) <= 10).length;
+        document.getElementById('statPending').textContent = orders.filter(o => o.status === 'PENDING').length;
+
+        const lowStock = products.filter(p => (p.stock || 0) <= 10);
+        const pending = orders.filter(o => o.status === 'PENDING');
+        const commentCount = products.reduce((total, product) => total + ((product.comments || []).length), 0);
+        document.getElementById('actionCards').innerHTML = `
+            <a href="management.html?mode=inventory" class="card-box" style="text-decoration:none;border-left:4px solid #f39c12;padding:16px">
+                <div style="display:flex;justify-content:space-between;gap:10px"><b style="color:#1a1a2e"><i class="fas fa-boxes-stacked" style="color:#f39c12"></i> Sản phẩm sắp hết kho</b><b style="font-size:22px;color:#f39c12">${lowStock.length}</b></div>
+                <div style="font-size:12px;color:#888;margin-top:9px">${lowStock.length ? lowStock.slice(0,2).map(p=>p.name).join(', ') + (lowStock.length > 2 ? '…' : '') : 'Tất cả sản phẩm đang đủ hàng'}</div>
+            </a>
+            <a href="orders.html" class="card-box" style="text-decoration:none;border-left:4px solid #d70018;padding:16px">
+                <div style="display:flex;justify-content:space-between;gap:10px"><b style="color:#1a1a2e"><i class="fas fa-clock" style="color:#d70018"></i> Đơn cần xử lý ngay</b><b style="font-size:22px;color:#d70018">${pending.length}</b></div>
+                <div style="font-size:12px;color:#888;margin-top:9px">${pending.length ? pending.slice(0,2).map(formatOrderCode).join(', ') + (pending.length > 2 ? '…' : '') : 'Không có đơn chờ xác nhận'}</div>
+            </a>
+            <a href="management.html?mode=warranties" class="card-box" style="text-decoration:none;border-left:4px solid #8e44ad;padding:16px">
+                <div style="display:flex;justify-content:space-between;gap:10px"><b style="color:#1a1a2e"><i class="fas fa-shield-heart" style="color:#8e44ad"></i> Đổi trả & bảo hành</b><b style="font-size:14px;color:#8e44ad">Tra cứu</b></div>
+                <div style="font-size:12px;color:#888;margin-top:9px">Tiếp nhận yêu cầu từ đơn hàng đã mua</div>
+            </a>`;
+
+        // 5 don moi nhat
+        const recent = orders
+            .slice()
+            .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+            .slice(0, 5);
+
+        const tbody = document.querySelector('#recentOrders tbody');
+        if (recent.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-inbox"></i><br>Chưa có đơn hàng</td></tr>';
+        } else {
+            tbody.innerHTML = recent.map(o => `
+                <tr>
+                    <td><b>${formatOrderCode(o)}</b></td>
+                    <td>${esc(o.userName || 'User #' + o.userId)}</td>
+                    <td class="price">${formatPrice(o.total)}</td>
+                    <td><span class="badge-status badge-${o.status}">${o.status}</span></td>
+                    <td style="font-size:11px;color:#888">${o.date ? new Date(o.date).toLocaleString('vi-VN') : '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Status breakdown
+        const statusCount = {};
+        orders.forEach(o => {
+            statusCount[o.status] = (statusCount[o.status] || 0) + 1;
+        });
+        const total = orders.length || 1;
+        const statuses = ['PENDING', 'CONFIRMED', 'PACKING', 'READY_TO_SHIP', 'SHIPPING', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'];
+        const statusLabels = {
+            PENDING: 'Chờ xác nhận',
+            CONFIRMED: 'Đã xác nhận',
+            PACKING: 'Đang đóng gói',
+            READY_TO_SHIP: 'Sẵn sàng giao',
+            SHIPPING: 'Đang giao',
+            OUT_FOR_DELIVERY: 'Shipper đang giao',
+            DELIVERED: 'Đã giao',
+            CANCELLED: 'Đã hủy'
+        };
+
+        document.getElementById('statusBreakdown').innerHTML = statuses.map(s => {
+            const count = statusCount[s] || 0;
+            const pct = Math.round(count / total * 100);
+            return `
+                <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                        <span style="font-weight:600">${statusLabels[s]}</span>
+                        <span style="color:#888">${count} (${pct}%)</span>
+                    </div>
+                    <div style="background:#f0f0f0;border-radius:6px;height:8px;overflow:hidden">
+                        <div class="badge-${s}" style="height:100%;width:${pct}%;border-radius:6px;transition:width 0.5s"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const colors = ['#d70018','#3498db','#f39c12','#27ae60','#8e44ad'];
+        drawChart('orderChart',{type:'doughnut',data:{labels:statuses.map(s=>statusLabels[s]),datasets:[{data:statuses.map(s=>statusCount[s]||0),backgroundColor:colors,borderWidth:0}]},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:11}}}}}});
+        const days = Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);d.setHours(0,0,0,0);return d;});
+        const daily = days.map(d => orders.filter(o=>o.date && new Date(o.date)>=d && new Date(o.date)<new Date(d.getTime()+86400000) && o.status === 'DELIVERED').reduce((s,o)=>s+(o.total||0),0));
+        drawChart('revenueChart',{type:'line',data:{labels:days.map(d=>d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})),datasets:[{data:daily,borderColor:'#d70018',backgroundColor:'rgba(215,0,24,.1)',fill:true,tension:.35,pointRadius:3}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>formatPrice(c.raw)}}},scales:{y:{ticks:{callback:formatShort},beginAtZero:true},x:{grid:{display:false}}}}});
+        const sales={}; orders.filter(o=>o.status === 'DELIVERED').forEach(o=>(o.items||[]).forEach(i=>sales[i.productName]=(sales[i.productName]||0)+(i.total||0)));
+        const top=Object.entries(sales).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        drawChart('productChart',{type:'bar',data:{labels:top.map(x=>x[0]),datasets:[{data:top.map(x=>x[1]),backgroundColor:'#d70018',borderRadius:6}]},options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>formatPrice(c.raw)}}},scales:{x:{ticks:{callback:formatShort}},y:{ticks:{font:{size:10}}}}}});
+        const brands={}; orders.filter(o=>o.status === 'DELIVERED').forEach(o=>(o.items||[]).forEach(i=>{const p=products.find(x=>String(x.id)===String(i.productId));const b=p?.category||'Khác';brands[b]=(brands[b]||0)+(i.total||0)}));
+        drawChart('brandChart',{type:'bar',data:{labels:Object.keys(brands),datasets:[{data:Object.values(brands),backgroundColor:'#3498db',borderRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>formatPrice(c.raw)}}},scales:{y:{ticks:{callback:formatShort},beginAtZero:true},x:{grid:{display:false}}}}});
+
+    } catch (err) {
+        console.error('Stats error:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!initAdminLayout('dashboard')) return;
+    loadStats();
+});
+</script>
+</body>
+</html>

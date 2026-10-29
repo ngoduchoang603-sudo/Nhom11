@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PhoneZone - Điện Thoại Chính Hãng</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Be Vietnam Pro',sans-serif;background:#f5f5f5;color:#333;display:flex;flex-direction:column;min-height:100vh}
+
+    /* TOP BAR */
+    .top-bar{background:#d70018;color:#fff;font-size:12px;padding:6px 0;overflow:hidden}
+    .top-bar-inner{display:flex;gap:32px;animation:marquee 28s linear infinite;white-space:nowrap}
+    .top-bar-inner span{display:flex;align-items:center;gap:5px}
+    @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+    /* HEADER */
+    .main-header{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:sticky;top:0;z-index:1000;padding:12px 0}
+    .logo-text{font-size:28px;font-weight:800;color:#d70018;letter-spacing:-1px;text-decoration:none;line-height:1}
+    .logo-text span{color:#1a1a2e}
+    .logo-sub{font-size:10px;color:#888;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+    .search-bar{flex:1;max-width:480px;position:relative}
+    .search-bar input{width:100%;border:2px solid #d70018;border-radius:24px;padding:9px 50px 9px 18px;font-size:14px;font-family:'Be Vietnam Pro',sans-serif;outline:none}
+    .search-bar button{position:absolute;right:0;top:0;height:100%;padding:0 18px;background:#d70018;border:none;border-radius:0 24px 24px 0;color:#fff;cursor:pointer}
+    .search-suggestions{display:none;position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:1100;background:#fff;border:1px solid #eee;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.16);overflow:hidden;padding:6px}
+    .search-suggestions.show{display:block}.search-suggestion{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;color:#1a1a2e;text-decoration:none}.search-suggestion:hover{background:#fff3f4;text-decoration:none;color:#1a1a2e}.search-suggestion img{width:38px;height:38px;object-fit:contain;background:#fafafa;border-radius:6px}.search-suggestion b{display:block;font-size:12px}.search-suggestion small{font-size:11px;color:#d70018;font-weight:700}.search-all{display:block;padding:9px 10px;font-size:12px;color:#d70018;text-decoration:none;border-top:1px solid #eee;margin-top:3px;font-weight:700}
+    .header-btn{background:#d70018;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .header-btn:hover{background:#b5000f;color:#fff;text-decoration:none}
+    .header-btn-outline{background:#fff;color:#d70018;border:2px solid #d70018;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .header-btn-outline:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-btn{position:relative;background:transparent;border:2px solid #d70018;border-radius:8px;padding:7px 14px;color:#d70018;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .cart-btn:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-count{position:absolute;top:-8px;right:-8px;background:#d70018;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .cart-btn:hover .cart-count{background:#fff;color:#d70018}
+
+    /* USER DROPDOWN */
+    .user-dropdown{position:relative}
+    .user-dropdown .dropdown-menu{border:none;box-shadow:0 4px 20px rgba(0,0,0,0.12);border-radius:10px;min-width:200px;padding:8px 0}
+    .user-dropdown .dropdown-item{padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:8px}
+    .user-dropdown .dropdown-item:hover{background:#fff5f5;color:#d70018}
+    .user-dropdown .dropdown-item i{color:#d70018;width:16px}
+
+    /* NAV */
+    .brand-nav{background:#fff;border-bottom:2px solid #f0f0f0;padding:0}
+    .brand-nav .nav-inner{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;flex-wrap:wrap}
+    .brand-nav a{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;color:#444;text-decoration:none;border:1.5px solid #eee;background:#fff;transition:all .2s}
+    .brand-nav a:hover,.brand-nav a.active{background:#d70018;color:#fff;border-color:#d70018;text-decoration:none}
+
+    /* NOTIFICATION */
+    .notif-bar{padding:0 0 8px}
+    .notif-bar .alert{border-radius:8px;font-size:14px;margin:0}
+
+    /* BANNER */
+    .banner-wrap{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative}
+    .banner-wrap .carousel-item img{width:100%;height:380px;object-fit:cover}
+    .carousel-nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;background:rgba(0,0,0,0.45);border:none;border-radius:50%;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:10;cursor:pointer;transition:.2s}
+    .carousel-nav-btn:hover{background:rgba(0,0,0,0.75)}
+    .carousel-nav-btn.prev{left:14px}
+    .carousel-nav-btn.next{right:14px}
+
+    /* BRAND LOGOS */
+    .section-card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .section-header h2{font-size:16px;font-weight:700;color:#1a1a2e;margin:0}
+    .section-header::before{content:'';width:4px;height:20px;background:#d70018;border-radius:2px;flex-shrink:0}
+    .brand-logos{display:flex;flex-wrap:wrap;gap:10px}
+    .brand-logo-btn{border:1.5px solid #eee;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;color:#333;background:#fff;text-decoration:none;transition:all .2s;letter-spacing:-0.3px}
+    .brand-logo-btn:hover{border-color:#d70018;color:#d70018;text-decoration:none;background:#fff5f5}
+
+    /* PRODUCT SECTION */
+    .section-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .section-title-row h2{font-size:16px;font-weight:700;color:#1a1a2e;margin:0;display:flex;align-items:center;gap:8px}
+    .section-title-row h2::before{content:'';width:4px;height:20px;background:#d70018;border-radius:2px}
+    .view-all{font-size:13px;color:#d70018;text-decoration:none;font-weight:600}
+    .view-all:hover{text-decoration:underline}
+
+    /* PRODUCT GRID */
+    .product-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+    .product-card{background:#fff;border-radius:10px;overflow:hidden;border:1.5px solid #f0f0f0;transition:all .2s;position:relative;display:flex;flex-direction:column}
+    .product-card:hover{border-color:#d70018;box-shadow:0 4px 16px rgba(215,0,24,.12);transform:translateY(-2px)}
+    .product-card .badge-discount{position:absolute;top:8px;left:8px;background:#d70018;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;z-index:1}
+    .product-card .img-wrap{height:160px;display:flex;align-items:center;justify-content:center;padding:12px;background:#fafafa}
+    .product-card .img-wrap img{max-height:136px;max-width:100%;object-fit:contain}
+    .product-card .card-body{padding:10px 12px 12px;flex:1;display:flex;flex-direction:column}
+    .product-card .card-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+    .product-card .card-specs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}
+    .product-card .spec-tag{font-size:10px;background:#f0f0f0;color:#666;padding:2px 6px;border-radius:3px;font-weight:500}
+    .product-card .card-price{font-size:15px;font-weight:700;color:#d70018;margin-bottom:8px}
+    .product-card .card-btns{display:flex;gap:6px}
+    .product-card .btn-detail{flex:1;background:#fff;border:1.5px solid #d70018;color:#d70018;border-radius:6px;font-size:12px;font-weight:600;padding:6px 0;text-align:center;text-decoration:none;font-family:'Be Vietnam Pro',sans-serif;transition:.2s}
+    .product-card .btn-detail:hover{background:#d70018;color:#fff;text-decoration:none}
+    .product-card .btn-cart{background:#d70018;border:1.5px solid #d70018;color:#fff;border-radius:6px;font-size:12px;padding:6px 10px;text-decoration:none;transition:.2s}
+    .product-card .btn-cart:hover{background:#b5000f;color:#fff;text-decoration:none}
+    .recommendation-section{border:1px solid #f3d4d8;background:linear-gradient(135deg,#fff 0%,#fff8f8 100%)}
+    .recommendation-subtitle{font-size:12px;color:#777;margin:7px 0 0 14px}
+
+    /* HOT SALE SECTION */
+    .hot-sale-header{background:linear-gradient(135deg,#d70018,#ff4757);border-radius:12px 12px 0 0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+    .hot-sale-title{font-size:18px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+    .countdown{display:flex;align-items:center;gap:6px}
+    .countdown-label{color:rgba(255,255,255,.8);font-size:13px;font-weight:500}
+    .countdown-item{background:rgba(0,0,0,.3);color:#fff;border-radius:6px;padding:4px 10px;font-size:16px;font-weight:700;min-width:36px;text-align:center}
+    .countdown-sep{color:#fff;font-weight:700;font-size:16px}
+    .hot-sale-body{background:#fff;border-radius:0 0 12px 12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+
+    /* FOOTER */
+    footer{background:#1a1a2e;color:#9ca3af;padding:14px 0;margin-top:24px}
+    footer .footer-brand{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+    footer .footer-brand span{color:#d70018}
+    footer a{color:#9ca3af;text-decoration:none;font-size:13px}
+    footer a:hover{color:#d70018}
+    footer p{font-size:13px;margin:0}
+
+    /* TOAST */
+    .toast-wrap{position:fixed;top:80px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+    .toast{background:#fff;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);display:flex;align-items:center;gap:10px;min-width:240px;animation:toastIn .3s ease;pointer-events:auto}
+    .toast.success{border-left:4px solid #22c55e}
+    .toast.error{border-left:4px solid #d70018}
+    .toast.info{border-left:4px solid #3b82f6}
+    .toast .toast-icon{font-size:16px}
+    .toast.success .toast-icon{color:#22c55e}
+    .toast.error .toast-icon{color:#d70018}
+    .toast.info .toast-icon{color:#3b82f6}
+    @keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}
+
+    /* btn-cart dạng button */
+    .btn-add-cart{background:#d70018;border:1.5px solid #d70018;color:#fff;border-radius:6px;font-size:12px;padding:6px 10px;cursor:pointer;transition:.2s;font-family:'Be Vietnam Pro',sans-serif}
+    .btn-add-cart:hover{background:#b5000f}
+    .btn-add-cart:disabled{background:#ccc;border-color:#ccc;cursor:not-allowed}
+    /* Contact floating button */
+    #contactBtn{background-color:#e67e22 !important;border-radius:50% !important}
+    #contactBtn:hover{background-color:#ca6f1e !important}
+    #scrollTopBtn{background-color:#fff !important}
+    #contactPopup{width:min(360px,calc(100vw - 32px));left:auto!important;right:16px;bottom:18px!important;padding:0!important;background:#fff;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden}
+    .contact-sheet-head{padding:16px 18px 13px;background:linear-gradient(135deg,#d70018,#ef4444);color:#fff;display:flex;align-items:center;justify-content:space-between}.contact-sheet-head b{font-size:16px}.contact-sheet-head span{font-size:12px;display:block;opacity:.9;margin-top:3px}.contact-close{width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:21px;cursor:pointer}.contact-actions{padding:12px}.contact-action{display:flex;align-items:center;gap:13px;padding:13px 12px;border-radius:13px;color:#1e293b;text-decoration:none;cursor:pointer}.contact-action:hover{background:#f8fafc}.contact-action-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex:0 0 auto}.contact-action b{display:block;font-size:14px}.contact-action small{display:block;margin-top:3px;color:#64748b;font-size:12px}.contact-action .next{margin-left:auto;color:#94a3b8}.contact-divider{height:1px;background:#e2e8f0;margin:0 12px}
+    .ai-chat-panel{display:none;position:fixed;right:20px;bottom:24px;z-index:10002;width:min(380px,calc(100vw - 32px));background:#fff;border-radius:18px;box-shadow:0 14px 48px rgba(0,0,0,.28);overflow:hidden}
+    .ai-chat-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,#6d28d9,#2563eb);color:#fff}.ai-chat-messages{height:320px;overflow-y:auto;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:9px}.ai-message{max-width:86%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45;white-space:pre-wrap}.ai-message.bot{align-self:flex-start;background:#fff;color:#334155;box-shadow:0 1px 3px rgba(0,0,0,.08)}.ai-message.user{align-self:flex-end;background:#d70018;color:#fff}.ai-chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid #e5e7eb}.ai-chat-form input{flex:1;border:1px solid #d1d5db;border-radius:10px;padding:10px;font:inherit;font-size:13px;outline:none}.ai-chat-form button{border:0;border-radius:10px;background:#6d28d9;color:#fff;padding:0 14px;cursor:pointer}
+
+    @media(max-width:576px){.product-grid{grid-template-columns:repeat(2,1fr)}.brand-nav .nav-inner{gap:3px}.brand-nav a{font-size:11px;padding:5px 10px}}
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <span><i class="fas fa-shield-alt"></i> Sản phẩm chính hãng 100%</span>
+    <span><i class="fas fa-truck"></i> Giao nhanh – Miễn phí đơn từ 500k</span>
+    <span><i class="fas fa-undo"></i> Đổi trả trong 30 ngày</span>
+    <span><i class="fas fa-headset"></i> Hỗ trợ 24/7 – 1800 2097</span>
+    <span><i class="fas fa-tag"></i> Giá tốt nhất thị trường</span>
+    <span><i class="fas fa-shield-alt"></i> Sản phẩm chính hãng 100%</span>
+    <span><i class="fas fa-truck"></i> Giao nhanh – Miễn phí đơn từ 500k</span>
+    <span><i class="fas fa-undo"></i> Đổi trả trong 30 ngày</span>
+    <span><i class="fas fa-headset"></i> Hỗ trợ 24/7 – 1800 2097</span>
+    <span><i class="fas fa-tag"></i> Giá tốt nhất thị trường</span>
+  </div>
+</div>
+
+<!-- MAIN HEADER -->
+<header class="main-header">
+  <div class="container">
+    <div class="d-flex align-items-center" style="gap:20px">
+      <!-- LOGO -->
+      <a href="index.html" class="text-decoration-none" style="flex-shrink:0">
+        <div class="logo-text">Phone<span>Zone</span></div>
+        <div class="logo-sub">Điện thoại chính hãng</div>
+      </a>
+
+      <!-- SEARCH -->
+      <form class="search-bar" action="search.html" id="searchForm" method="get" onsubmit="return checkSearch()" style="flex:1">
+        <input id="search" type="search" name="name"  placeholder="Bạn muốn tìm điện thoại gì?"/>
+        <button type="submit"><i class="fas fa-search"></i></button>
+        <div id="searchSuggestions" class="search-suggestions" aria-label="Gợi ý sản phẩm"></div>
+      </form>
+
+      <!-- ACTIONS -->
+      <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0" id="userArea">
+        <!-- user area filled by JS -->
+      </div>
+
+      <!-- CART BUTTON (luon hien thi) -->
+      <a href="cart.html" class="cart-btn" style="flex-shrink:0">
+        <i class="fas fa-shopping-cart"></i> Giỏ hàng
+        <span class="cart-count" id="cartBadge" style="display:none">0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- BRAND NAV -->
+<!-- Hidden form để filter theo brand -->
+<form id="brandFilterForm" action="search.html" method="get" method="POST" style="display:none">
+  <input type="hidden" name="minPrice" value=""/>
+  <input type="hidden" name="maxPrice" value=""/>
+  <input type="hidden" name="typeSort" value="NOT_SORT"/>
+  <input type="hidden" id="brandValue" name="categories"/>
+</form>
+
+<div class="brand-nav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="active"><i class="fas fa-home"></i> Trang Chủ</a>
+      <a href="javascript:void(0)" onclick="filterBrand('')"><i class="fas fa-mobile-alt"></i> Tất cả</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Apple')">iPhone</a>
+      <a href="javascript:void(0)" onclick="filterBrand('SamSung')">Samsung</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Xiaomi')">Xiaomi</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Oppo')">OPPO</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Vivo')">Vivo</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Realme')">Realme</a>
+      <a href="#newest-products"><i class="fas fa-star" style="color:#f39c12"></i> Mới nhất</a>
+      <a href="#sale-products"><i class="fas fa-fire" style="color:#d70018"></i> Khuyến mãi</a>
+      <a href="#"><i class="fas fa-info-circle"></i> Giới thiệu</a>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+
+
+<!-- MAIN CONTENT -->
+<div style="flex:1"><div class="container" style="margin-top:16px">
+
+  <!-- BANNER -->
+  <div class="banner-wrap">
+    <div id="bannerCarousel" class="carousel slide" data-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active"><img src="/img/banner1.png" alt="Banner 1"/></div>
+        <div class="carousel-item"><img src="/img/banner2.jpg" alt="Banner 2"/></div>
+        <div class="carousel-item"><img src="/img/banner3.png" alt="Banner 3"/></div>
+        <div class="carousel-item"><img src="/img/banner4.webp" alt="Banner 4"/></div>
+        <div class="carousel-item"><img src="/img/banner5.webp" alt="Banner 5"/></div>
+      </div>
+      <button class="carousel-nav-btn prev" onclick="$('#bannerCarousel').carousel('prev')"><i class="fas fa-chevron-left"></i></button>
+      <button class="carousel-nav-btn next" onclick="$('#bannerCarousel').carousel('next')"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <!-- GỢI Ý THEO PHIÊN DUYỆT WEB -->
+  <div class="section-card recommendation-section" id="recommendationSection">
+    <div class="section-title-row">
+      <div>
+        <h2><i class="fas fa-magic" style="color:#d70018"></i> <span id="recommendationTitle">Sản phẩm nổi bật</span></h2>
+        <p id="recommendationSubtitle" class="recommendation-subtitle" hidden></p>
+      </div>
+      <a href="search.html" class="view-all">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="recommendationGrid"></div>
+  </div>
+
+  <!-- BRAND LOGOS -->
+  <div class="section-card">
+    <div class="section-header"><h2>Thương hiệu nổi bật</h2></div>
+    <div class="brand-logos">
+      <a href="javascript:void(0)" onclick="filterBrand('Apple')" class="brand-logo-btn">iPhone</a>
+      <a href="javascript:void(0)" onclick="filterBrand('SamSung')" class="brand-logo-btn">SAMSUNG</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Xiaomi')" class="brand-logo-btn">Xiaomi</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Oppo')" class="brand-logo-btn">OPPO</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Vivo')" class="brand-logo-btn">vivo</a>
+      <a href="javascript:void(0)" onclick="filterBrand('Realme')" class="brand-logo-btn">realme</a>
+    </div>
+  </div>
+
+  <!-- HOT SALE / KHUYẾN MÃI -->
+  <div id="sale-products">
+    <div class="hot-sale-header">
+      <div class="hot-sale-title">
+        <i class="fas fa-fire"></i> KHUYẾN MÃI HOT
+      </div>
+      <div class="countdown">
+        <span class="countdown-label">Kết thúc sau:</span>
+        <span class="countdown-item" id="cd-h">00</span>
+        <span class="countdown-sep">:</span>
+        <span class="countdown-item" id="cd-m">00</span>
+        <span class="countdown-sep">:</span>
+        <span class="countdown-item" id="cd-s">00</span>
+      </div>
+    </div>
+    <div class="hot-sale-body">
+      <div class="product-grid" id="saleGrid">
+        <!-- sale products: render by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SẢN PHẨM MỚI NHẤT -->
+  <div class="section-card" id="newest-products">
+    <div class="section-title-row">
+      <h2>Điện thoại mới nhất</h2>
+      <a href="search.html" class="view-all">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="newestGrid">
+      <!-- newest products: render by JS -->
+    </div>
+  </div>
+
+  <!-- ĐÁNH GIÁ KHÁCH HÀNG -->
+  <div class="section-card" style="margin-bottom:16px">
+    <div class="section-title-row">
+      <h2>💬 Khách hàng nói gì về chúng tôi</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:0.5px solid #eee;transition:.2s" onmouseover="this.style.borderColor='#d70018'" onmouseout="this.style.borderColor='#eee'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:42px;height:42px;border-radius:50%;background:#fff5f5;border:2px solid #d70018;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#d70018;flex-shrink:0">N</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">Nguyễn Văn An</div>
+            <div style="color:#f39c12;font-size:12px">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:#666;line-height:1.6;margin:0">"Mua iPhone 15 Pro Max tại PhoneZone, máy chính hãng, seal đầy đủ. Giao hàng nhanh chỉ 2 tiếng, nhân viên tư vấn rất nhiệt tình. Sẽ tiếp tục ủng hộ!"</p>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:0.5px solid #eee;transition:.2s" onmouseover="this.style.borderColor='#d70018'" onmouseout="this.style.borderColor='#eee'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:42px;height:42px;border-radius:50%;background:#fff5f5;border:2px solid #d70018;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#d70018;flex-shrink:0">T</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">Trần Thị Bình</div>
+            <div style="color:#f39c12;font-size:12px">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:#666;line-height:1.6;margin:0">"Giá tốt hơn nhiều so với các cửa hàng khác, lại còn được tặng thêm phụ kiện. Samsung Galaxy S24 Ultra dùng rất mướt. Cảm ơn PhoneZone!"</p>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:0.5px solid #eee;transition:.2s" onmouseover="this.style.borderColor='#d70018'" onmouseout="this.style.borderColor='#eee'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:42px;height:42px;border-radius:50%;background:#fff5f5;border:2px solid #d70018;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#d70018;flex-shrink:0">L</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">Lê Minh Khoa</div>
+            <div style="color:#f39c12;font-size:12px">★★★★☆</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:#666;line-height:1.6;margin:0">"Đặt Xiaomi 14 online lúc 8h tối, sáng hôm sau đã nhận được. Máy đẹp, đóng gói cẩn thận. Chính sách bảo hành rõ ràng, yên tâm mua!"</p>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:0.5px solid #eee;transition:.2s" onmouseover="this.style.borderColor='#d70018'" onmouseout="this.style.borderColor='#eee'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:42px;height:42px;border-radius:50%;background:#fff5f5;border:2px solid #d70018;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#d70018;flex-shrink:0">P</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">Phạm Thùy Linh</div>
+            <div style="color:#f39c12;font-size:12px">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:#666;line-height:1.6;margin:0">"Website dễ sử dụng, tìm kiếm sản phẩm nhanh. Mua OPPO Reno 11 được giảm thêm 10%, nhân viên hỗ trợ tận tâm. Rất hài lòng!"</p>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:10px;padding:16px;border:0.5px solid #eee;transition:.2s" onmouseover="this.style.borderColor='#d70018'" onmouseout="this.style.borderColor='#eee'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:42px;height:42px;border-radius:50%;background:#fff5f5;border:2px solid #d70018;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#d70018;flex-shrink:0">H</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a2e">Hoàng Đức Nam</div>
+            <div style="color:#f39c12;font-size:12px">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:#666;line-height:1.6;margin:0">"Đây là lần thứ 3 mình mua tại PhoneZone rồi. Lần nào cũng hài lòng. Máy luôn chính hãng, giá cạnh tranh, ship nhanh. Recommend!"</p>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#d70018,#ff4757);border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:#fff">4.9<span style="font-size:16px">/5</span></div>
+        <div style="color:rgba(255,255,255,.9);font-size:13px;margin:6px 0">Đánh giá trung bình</div>
+        <div style="color:#ffd700;font-size:16px;margin-bottom:8px">★★★★★</div>
+        <div style="color:rgba(255,255,255,.8);font-size:12px">từ 2,400+ khách hàng</div>
+      </div>
+
+    </div>
+  </div>
+
+</div></div><!-- /container -->
+
+<footer style="background:#f0f0f0;border-top:1px solid #ddd;margin-top:auto;padding:32px 0 0">
+  <div style="max-width:1100px;margin:0 auto;padding:0 24px">
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;margin-bottom:24px">
+
+      <!-- Cột 1: Thông tin liên hệ -->
+      <div>
+        <div style="font-size:22px;font-weight:800;color:#d70018;letter-spacing:-0.5px">Phone<span style="color:#1a1a2e">Zone</span></div>
+        <div style="font-size:10px;color:#888;margin-top:2px;letter-spacing:2px;margin-bottom:14px">ĐIỆN THOẠI CHÍNH HÃNG</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:8px">Tổng đài hỗ trợ miễn phí</div>
+        <div style="font-size:16px;font-weight:800;color:#d70018;margin-bottom:4px">
+          <i class="fas fa-phone" style="margin-right:6px"></i>1800 2097
+        </div>
+        <div style="font-size:11px;color:#888;margin-bottom:14px">Mua hàng (7h30 – 22h00)</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:8px">Kết nối với chúng tôi</div>
+        <div style="display:flex;gap:8px">
+          <a href="#" style="width:32px;height:32px;background:#1877f2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:14px"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" style="width:32px;height:32px;background:#e4405f;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:14px"><i class="fab fa-instagram"></i></a>
+          <a href="#" style="width:32px;height:32px;background:#ff0000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:14px"><i class="fab fa-youtube"></i></a>
+          <a href="#" style="width:32px;height:32px;background:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:13px;font-weight:900">T</a>
+        </div>
+      </div>
+
+      <!-- Cột 2: Chính sách -->
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #d70018;display:inline-block">Thông tin chính sách</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Chính sách bảo hành</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Chính sách đổi trả</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Chính sách giao hàng</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Hướng dẫn mua hàng</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Quy định bảo mật</a>
+        </div>
+      </div>
+
+      <!-- Cột 3: Dịch vụ -->
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #d70018;display:inline-block">Dịch vụ</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Bảo hành chính hãng</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Thu cũ đổi mới</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Trả góp 0%</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Giao hàng toàn quốc</a>
+          <a href="#" style="font-size:12px;color:#555;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-chevron-right" style="color:#d70018;font-size:9px"></i>Hỗ trợ kỹ thuật 24/7</a>
+        </div>
+      </div>
+
+      <!-- Cột 4: Cam kết -->
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #d70018;display:inline-block">Cam kết của chúng tôi</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-shield-alt" style="color:#d70018;font-size:11px"></i></div>
+            <span style="font-size:11px;color:#555">Sản phẩm chính hãng 100%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-undo" style="color:#d70018;font-size:11px"></i></div>
+            <span style="font-size:11px;color:#555">Đổi trả trong vòng 30 ngày</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-truck" style="color:#d70018;font-size:11px"></i></div>
+            <span style="font-size:11px;color:#555">Giao hàng nhanh toàn quốc</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:#fff0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-headset" style="color:#d70018;font-size:11px"></i></div>
+            <span style="font-size:11px;color:#555">Hỗ trợ 24/7 tận tình</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div style="background:#1a1a2e;padding:12px 0;margin-top:0">
+    <div style="max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:11px;color:#9ca3af">© 2024 PhoneZone. All Rights Reserved.</div>
+      <div style="display:flex;gap:16px">
+        <a href="#" style="font-size:11px;color:#9ca3af;text-decoration:none">Điều khoản sử dụng</a>
+        <a href="#" style="font-size:11px;color:#9ca3af;text-decoration:none">Chính sách bảo mật</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- SCROLL TO TOP -->
+<div id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+  style="position:fixed;bottom:90px;right:20px;z-index:9999;width:44px;height:44px;background-color:#fff;border:2px solid #d70018;border-radius:50%;color:#d70018;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15)">
+  <i class="fas fa-chevron-up"></i>
+</div>
+
+<!-- NÚT LIÊN HỆ TRÒN -->
+<div id="contactBtn" onclick="openContact()"
+  style="position:fixed;bottom:24px;right:20px;z-index:9999;width:56px;height:56px;background-color:#e67e22;border-radius:50%;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(230,126,34,.5)">
+  <i class="fas fa-headset" style="color:#fff"></i>
+</div>
+
+<!-- OVERLAY + CONTACT POPUP -->
+<div id="contactOverlay" onclick="closeContact()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;transition:opacity .3s"></div>
+
+<div id="contactPopup" style="display:none;position:fixed;z-index:10001">
+  <div class="contact-sheet-head"><div><b>Chúng tôi có thể giúp gì?</b><span>Chọn một cách liên hệ phù hợp</span></div><button class="contact-close" onclick="closeContact()" aria-label="Đóng">×</button></div>
+  <div class="contact-actions">
+    <a class="contact-action" href="ai-chat.html"><span class="contact-action-icon" style="background:linear-gradient(135deg,#6d28d9,#2563eb)"><i class="fas fa-robot"></i></span><span><b>Hỏi trợ lý AI</b><small>Tư vấn sản phẩm nhanh chóng</small></span><i class="fas fa-chevron-right next"></i></a>
+    <div class="contact-divider"></div>
+    <a class="contact-action" href="tel:18002097"><span class="contact-action-icon" style="background:#f59e0b"><i class="fas fa-phone"></i></span><span><b>Gọi miễn phí</b><small>Hotline 1800 2097</small></span><i class="fas fa-chevron-right next"></i></a>
+    <div class="contact-divider"></div>
+    <a class="contact-action" href="https://zalo.me/0901234567" target="_blank" rel="noopener"><span class="contact-action-icon" style="background:#0068ff;font-weight:800">Z</span><span><b>Chat trên Zalo</b><small>Nhận hỗ trợ từ nhân viên</small></span><i class="fas fa-chevron-right next"></i></a>
+  </div>
+</div>
+
+<!-- AI CHAT PANEL -->
+<section id="aiChatPanel" class="ai-chat-panel" aria-label="Trợ lý AI">
+  <div class="ai-chat-header">
+    <div><i class="fas fa-robot"></i> <b>Trợ lý PhoneZone</b><div style="font-size:11px;opacity:.85;margin-top:2px">Tư vấn sản phẩm 24/7</div></div>
+    <button onclick="closeAiChat()" style="border:0;background:transparent;color:#fff;font-size:22px;cursor:pointer">×</button>
+  </div>
+  <div id="aiChatMessages" class="ai-chat-messages"></div>
+  <form class="ai-chat-form" onsubmit="sendAiMessage(event)">
+    <input id="aiChatInput" maxlength="500" autocomplete="off" placeholder="Hỏi về điện thoại, giá, tồn kho..." />
+    <button type="submit" aria-label="Gửi"><i class="fas fa-paper-plane"></i></button>
+  </form>
+</section>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="js/api.js"></script>
+<script src="js/app-home.js"></script>
+</body>
+</html>

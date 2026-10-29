@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Giỏ hàng – PhoneZone</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Be Vietnam Pro',sans-serif;background:#f5f5f5;color:#333;display:flex;flex-direction:column;min-height:100vh}
+    .main-header{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:100;padding:10px 0}
+    .container-fluid-mod{max-width:1100px;margin:0 auto;padding:0 24px}
+    .logo-text{font-size:24px;font-weight:800;color:#d70018;letter-spacing:-1px;text-decoration:none;line-height:1}
+    .logo-text span{color:#1a1a2e}
+    .logo-sub{font-size:10px;color:#888;font-weight:500;letter-spacing:2px;text-transform:uppercase}
+    .header-btn{background:#d70018;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .header-btn:hover{background:#b5000f;color:#fff;text-decoration:none}
+    .header-btn-outline{background:#fff;color:#d70018;border:2px solid #d70018;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;font-family:'Be Vietnam Pro',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .header-btn-outline:hover{background:#d70018;color:#fff;text-decoration:none}
+    .cart-btn{position:relative;background:transparent;border:2px solid #d70018;border-radius:8px;padding:6px 14px;color:#d70018;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .cart-count{position:absolute;top:-8px;right:-8px;background:#d70018;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+    .page-wrap{max-width:1100px;margin:0 auto;padding:24px 16px;flex:1}
+    .page-title{font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+    .page-title::before{content:'';width:4px;height:26px;background:#d70018;border-radius:2px}
+
+    .cart-grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
+
+    .cart-items{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .cart-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:2px solid #f5f5f5;margin-bottom:14px}
+    .cart-header h3{font-size:16px;font-weight:700;color:#1a1a2e}
+
+    .cart-item{display:grid;grid-template-columns:80px 1fr auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid #f5f5f5}
+    .cart-item:last-child{border-bottom:none}
+    .cart-item-img{width:80px;height:80px;background:#fafafa;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:6px}
+    .cart-item-img img{max-width:100%;max-height:100%;object-fit:contain}
+    .cart-item-info h4{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:4px;line-height:1.4}
+    .cart-item-info .price{color:#d70018;font-weight:700;font-size:14px}
+    .qty-controls{display:inline-flex;align-items:center;border:1.5px solid #eee;border-radius:6px;overflow:hidden}
+    .qty-controls button{background:#fff;border:none;width:30px;height:30px;cursor:pointer;font-weight:700;transition:.2s}
+    .qty-controls button:hover{background:#f5f5f5;color:#d70018}
+    .qty-controls span{width:36px;text-align:center;line-height:30px;font-weight:600;border-left:1.5px solid #eee;border-right:1.5px solid #eee;font-size:13px}
+    .btn-remove{background:none;border:none;color:#e74c3c;font-size:18px;cursor:pointer;padding:6px;border-radius:4px;transition:.2s}
+    .btn-remove:hover{background:#fee}
+
+    .cart-summary{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);height:fit-content;position:sticky;top:80px}
+    .cart-summary h3{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a1a2e}
+    .summary-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;color:#555}
+    .summary-row.total{font-size:18px;font-weight:800;color:#d70018;border-top:2px solid #f5f5f5;margin-top:8px;padding-top:14px}
+
+    .addr-input{width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:13px;font-family:inherit;margin:10px 0;resize:vertical;min-height:80px;outline:none}
+    .addr-input:focus{border-color:#d70018}
+
+    .btn-checkout{width:100%;background:#d70018;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}
+    .btn-checkout:hover{background:#b5000f}
+    .btn-checkout:disabled{background:#aaa;cursor:not-allowed}
+
+    /* Payment method radio cards */
+    .payment-methods{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+    .payment-option{display:block;cursor:pointer;margin:0}
+    .payment-option input{display:none}
+    .payment-card{display:flex;align-items:center;gap:12px;padding:12px;border:2px solid #eee;border-radius:10px;transition:.2s}
+    .payment-option:hover .payment-card{border-color:#d70018}
+    .payment-option input:checked + .payment-card{border-color:#d70018;background:#fff5f5}
+    .payment-icon{width:42px;height:42px;background:#e8f8ed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .payment-title{font-size:13px;font-weight:700;color:#1a1a2e}
+    .payment-desc{font-size:11px;color:#888;margin-top:2px}
+
+    /* Bill / Order success modal */
+    .modal-bill{background:#fff;border-radius:16px;max-width:520px;width:100%;overflow:hidden;animation:slideUp 0.3s;max-height:90vh;display:flex;flex-direction:column}
+    .bill-header{background:linear-gradient(135deg,#27ae60,#16a085);color:#fff;padding:24px;text-align:center;position:relative}
+    .bill-header .check-icon{width:60px;height:60px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#27ae60;font-size:32px;margin:0 auto 10px;animation:bounceIn 0.5s}
+    @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+    .bill-header h2{font-size:20px;font-weight:800;margin-bottom:4px}
+    .bill-header p{font-size:13px;opacity:0.9}
+    .bill-body{padding:22px;overflow-y:auto;flex:1}
+    .bill-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px dashed #eee}
+    .bill-row .label{color:#888;font-weight:600}
+    .bill-row .value{color:#1a1a2e;font-weight:700;text-align:right;max-width:60%}
+    .bill-items{margin:14px 0;padding:14px;background:#fafafa;border-radius:8px}
+    .bill-item{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px dotted #ddd}
+    .bill-item:last-child{border-bottom:none}
+    .bill-total-row{display:flex;justify-content:space-between;padding:14px 0 8px;border-top:2px solid #d70018;font-size:18px;font-weight:800;color:#d70018;margin-top:14px}
+    .bill-footer{padding:18px;border-top:1px solid #eee;display:flex;gap:10px}
+    .bill-footer button{flex:1;padding:11px;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Be Vietnam Pro',sans-serif;cursor:pointer;transition:.2s}
+    .bill-btn-primary{background:#d70018;color:#fff}
+    .bill-btn-primary:hover{background:#b5000f}
+    .bill-btn-secondary{background:#fff;color:#666;border:1.5px solid #ddd!important}
+    .bill-btn-secondary:hover{border-color:#d70018!important;color:#d70018}
+
+    .empty-cart{text-align:center;padding:60px 20px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .empty-cart i{font-size:80px;color:#ddd;margin-bottom:14px}
+    .empty-cart h3{color:#666;margin-bottom:8px}
+    .empty-cart p{color:#999;margin-bottom:18px;font-size:14px}
+
+    /* Payment Modal */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-bg.show{display:flex}
+    .modal-pay{background:#fff;border-radius:16px;max-width:460px;width:100%;overflow:hidden;animation:slideUp 0.3s}
+    @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-pay-header{background:linear-gradient(135deg,#a50064,#d81b60);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center}
+    /* Each gateway keeps its own visual identity; MoMo remains pink, ZaloPay blue. */
+    .modal-pay.zalopay .modal-pay-header{background:linear-gradient(135deg,#0068ff,#1b84ff)}
+    .modal-pay.zalopay .qr-amount{color:#0068ff}
+    .modal-pay.zalopay .payment-status.pending{background:#eaf3ff;color:#0759bd}
+    .modal-pay.zalopay .qr-link:hover{background:#0068ff}
+    .modal-pay-header h3{font-size:18px;font-weight:700}
+    .modal-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;transition:.2s}
+    .modal-close:hover{background:rgba(255,255,255,0.3);transform:rotate(90deg)}
+    .modal-body-pay{padding:24px;text-align:center}
+    .qr-amount{font-size:28px;font-weight:800;color:#d70018;margin-bottom:6px}
+    .qr-info{color:#777;font-size:13px;margin-bottom:18px}
+    .qr-img-wrap{max-width:240px;margin:0 auto 16px;padding:12px;background:#fff;border-radius:14px;box-shadow:0 0 0 1px #eee}
+    .qr-img-wrap img{width:100%}
+    .payment-status{padding:10px;border-radius:8px;margin:14px 0;font-size:14px;font-weight:600}
+    .payment-status.pending{background:#fff8e1;color:#856404}
+    .payment-status.success{background:#d4edda;color:#155724}
+    .payment-status.failed{background:#f8d7da;color:#721c24}
+    .qr-links{display:flex;flex-direction:column;gap:8px}
+    .qr-link{display:block;padding:10px;background:#f5f5f5;border-radius:8px;color:#333;font-weight:600;text-decoration:none;font-size:13px;transition:.2s}
+    .qr-link:hover{background:#d70018;color:#fff;text-decoration:none}
+    .btn-mock{margin-top:12px;padding:10px 16px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:.2s;font-family:inherit}
+    .btn-mock:hover{background:#1e8449}
+
+    footer{background:#1a1a2e;color:#9ca3af;padding:14px 0;margin-top:auto}
+    footer .container-fluid-mod{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+    .footer-brand{font-size:18px;font-weight:800;color:#fff}
+    .footer-brand span{color:#d70018}
+    footer a{color:#9ca3af;text-decoration:none;font-size:12px;margin-left:14px}
+    footer a:hover{color:#d70018}
+
+    @media(max-width:800px){.cart-grid{grid-template-columns:1fr}.cart-summary{position:static}}
+  </style>
+</head>
+<body>
+<header class="main-header">
+  <div class="container-fluid-mod">
+    <div class="d-flex align-items-center" style="gap:16px">
+      <a href="index.html" class="text-decoration-none" style="flex-shrink:0">
+        <div class="logo-text">Phone<span>Zone</span></div>
+        <div class="logo-sub">Điện thoại chính hãng</div>
+      </a>
+      <div style="flex:1"></div>
+      <div class="d-flex align-items-center" style="gap:8px" id="userArea"></div>
+    </div>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <h1 class="page-title"><i class="fas fa-shopping-cart" style="color:#d70018"></i> Giỏ hàng của bạn</h1>
+  <div id="cartContent">
+    <div style="text-align:center;padding:60px;color:#999"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:#d70018"></i><p style="margin-top:14px">Đang tải...</p></div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-bg" id="paymentModal">
+  <div class="modal-pay">
+    <div class="modal-pay-header">
+      <h3 id="paymentModalTitle"><i class="fas fa-qrcode mr-2"></i>Thanh toán trực tuyến</h3>
+      <button class="modal-close" onclick="closePaymentModal()">✕</button>
+    </div>
+    <div class="modal-body-pay" id="paymentBody">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container-fluid-mod">
+    <div class="footer-brand">Phone<span>Zone</span></div>
+    <div><a href="index.html">Trang chủ</a><a href="history.html">Đơn hàng</a></div>
+    <div style="font-size:11px">© 2024 PhoneZone</div>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script>
+let cartData = [];
+let savedAddresses = [];
+let appliedCoupon = null;
+let checkoutSubtotal = 0;
+let checkoutShipping = 0;
+const escapeHtml = value => { const el = document.createElement('div'); el.textContent = value ?? ''; return el.innerHTML; };
+let currentPaymentId = null;
+let pollTimer = null;
+
+async function loadCart() {
+    if (!Auth.user) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        const [cart, addresses, products] = await Promise.all([
+            http(`${API.order}/api/carts/user/${Auth.user.id}`),
+            http(`${API.user}/api/users/${Auth.user.id}/addresses`).catch(() => []),
+            http(`${API.product}/api/products`).catch(() => [])
+        ]);
+        const discounts = new Map((products || []).map(product => [String(product.id), Number(product.discount || 0)]));
+        cartData = (cart || []).map(item => ({ ...item, productDiscount: discounts.get(String(item.productId)) || 0 }));
+        savedAddresses = addresses || [];
+        renderCart();
+        await showGatewayReturnResult();
+    } catch (err) {
+        document.getElementById('cartContent').innerHTML =
+            `<div class="empty-cart"><i class="fas fa-exclamation-circle"></i><h3>Không tải được giỏ hàng</h3><p>${err.message}</p></div>`;
+    }
+}
+
+// VNPay redirects the customer back to this page. Read the verified payment record and show a clear result.
+async function showGatewayReturnResult() {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('paymentId');
+    if (params.get('gateway') !== 'VNPAY' || !paymentId) return;
+    try {
+        const payment = await http(`${API.payment}/api/payments/${paymentId}/query`, { method: 'POST' });
+        const orders = await http(`${API.order}/api/orders/user/${Auth.user.id}`);
+        const order = (orders || []).find(item => String(item.id) === String(payment.orderId));
+        if (payment.status === 'SUCCESS' && order) {
+            showBillModal(order, 'VNPAY', payment);
+        } else {
+            currentOrder = order || { id: payment.orderId, items: [], total: payment.amount };
+            showPaymentRetryModal(currentOrder, payment.amount, payment.message || 'VNPay không xác nhận được giao dịch', 'VNPAY');
+        }
+    } catch (error) {
+        showToast('Không thể xác minh kết quả VNPay. Vui lòng xem lại trong Đơn hàng của tôi.', 'warning');
+    } finally {
+        window.history.replaceState({}, document.title, 'cart.html');
+    }
+}
+
+function renderCart() {
+    if (cartData.length === 0) {
+        document.getElementById('cartContent').innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Giỏ hàng đang trống</h3>
+                <p>Hãy thêm sản phẩm vào giỏ hàng nhé!</p>
+                <a href="index.html" class="header-btn"><i class="fas fa-arrow-left"></i> Tiếp tục mua sắm</a>
+            </div>
+        `;
+        return;
+    }
+
+    const salePrice = item => Math.max(0, Number(item.productPrice || 0) - Number(item.productDiscount || 0));
+    const subtotal = cartData.reduce((s, c) => s + salePrice(c) * (c.quantity || 0), 0);
+    const shipping = subtotal >= 5000000 ? 0 : 30000;
+    checkoutSubtotal = subtotal;
+    checkoutShipping = shipping;
+    const couponDiscount = Math.min(Number(appliedCoupon?.discount || 0), subtotal);
+    const total = subtotal + shipping - couponDiscount;
+
+    document.getElementById('cartContent').innerHTML = `
+        <div class="cart-grid">
+            <div class="cart-items">
+                <div class="cart-header">
+                    <h3>Sản phẩm (${cartData.length})</h3>
+                    <a href="index.html" style="color:#d70018;font-size:13px;text-decoration:none">
+                        <i class="fas fa-plus"></i> Thêm sản phẩm
+                    </a>
+                </div>
+                ${cartData.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-img">
+                            <img src="${imgUrl(item.productImage)}" onerror="this.src='https://via.placeholder.com/80'"/>
+                        </div>
+                        <div class="cart-item-info">
+                            <h4>${item.productName || 'Sản phẩm'}</h4>
+                            <div class="price">${formatPrice(salePrice(item))}</div>
+                            ${item.productDiscount > 0 ? `<div style="font-size:11px;color:#999;text-decoration:line-through">${formatPrice(item.productPrice)}</div>` : ''}
+                        </div>
+                        <div class="qty-controls">
+                            <button onclick="updateQty(${item.id}, ${(item.quantity||1) - 1})">−</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQty(${item.id}, ${(item.quantity||1) + 1})">+</button>
+                        </div>
+                        <button class="btn-remove" onclick="removeItem(${item.id})" title="Xóa">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+
+            <div class="cart-summary">
+                <h3><i class="fas fa-receipt"></i> Đơn hàng</h3>
+                <div class="summary-row">
+                    <span>Tạm tính:</span>
+                    <strong>${formatPrice(subtotal)}</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Phí vận chuyển:</span>
+                    <strong>${shipping === 0 ? '<span style="color:#27ae60">Miễn phí</span>' : formatPrice(shipping)}</strong>
+                </div>
+                ${shipping > 0 ? '<div style="font-size:11px;color:#888;padding:4px 0">💡 Đơn từ 5tr được miễn phí ship</div>' : ''}
+                ${couponDiscount > 0 ? `<div class="summary-row" style="color:#15803d"><span>Giảm giá ${escapeHtml(appliedCoupon.code)}:</span><strong>−${formatPrice(couponDiscount)}</strong></div>` : ''}
+                <div class="summary-row total">
+                    <span>Tổng cộng:</span>
+                    <span>${formatPrice(total)}</span>
+                </div>
+
+                <label style="display:block;margin-top:14px;font-size:13px;font-weight:600;color:#555"><i class="fas fa-ticket-alt"></i> Mã giảm giá:</label>
+                <div style="display:flex;gap:8px;margin-top:7px"><input id="couponCode" class="addr-input" style="flex:1;min-width:0;min-height:0;height:42px;margin:0;text-transform:uppercase" maxlength="40" value="${escapeHtml(appliedCoupon?.code || '')}" placeholder="Ví dụ: PHONEZONE10"/><button type="button" onclick="applyCoupon()" style="flex:0 0 auto;min-width:88px;white-space:nowrap;border:0;border-radius:8px;background:#d70018;color:#fff;padding:0 14px;font-weight:700;cursor:pointer">Dùng mã</button></div>
+                <div id="couponHint" style="font-size:11px;color:${couponDiscount > 0 ? '#15803d' : '#888'};margin-top:5px">${couponDiscount > 0 ? `Đã giảm ${formatPrice(couponDiscount)} từ mã ${escapeHtml(appliedCoupon.code)}.` : 'Nhập mã rồi bấm Áp dụng để xem số tiền được giảm trước khi đặt hàng.'}</div>
+
+                <label style="display:block;margin-top:14px;font-size:13px;font-weight:600;color:#555"><i class="fas fa-map-marker-alt"></i> Thông tin nhận hàng:</label>
+                ${savedAddresses.length ? `<select class="addr-input" id="savedAddress" style="min-height:0;height:42px;margin:7px 0" onchange="applySavedAddress()"><option value="">Tự nhập thông tin giao hàng</option>${savedAddresses.map(a=>`<option value="${a.id}" ${a.defaultAddress?'selected':''}>${escapeHtml(a.label||'Địa chỉ giao hàng')} · ${escapeHtml(a.recipientName)} · ${escapeHtml(a.phone)}</option>`).join('')}</select>` : `<div style="font-size:11px;color:#888;margin-top:7px">Bạn chưa lưu địa chỉ. Có thể tự nhập bên dưới hoặc lưu tại Tài khoản của tôi.</div>`}
+                <input class="addr-input" id="recipientName" style="min-height:0;height:42px;margin:7px 0" placeholder="Họ tên người nhận" value="${escapeHtml((savedAddresses.find(a=>a.defaultAddress)||{}).recipientName||Auth.user.fullName||'')}">
+                <input class="addr-input" id="recipientPhone" style="min-height:0;height:42px;margin:0 0 7px" placeholder="Số điện thoại người nhận" value="${escapeHtml((savedAddresses.find(a=>a.defaultAddress)||{}).phone||Auth.user.phone||'')}">
+                <textarea class="addr-input" id="address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành...">${escapeHtml((savedAddresses.find(a=>a.defaultAddress)||{}).address||Auth.user.address||'')}</textarea>
+                <a href="account.html" style="font-size:12px;color:#d70018;text-decoration:none"><i class="fas fa-plus-circle"></i> Quản lý / thêm địa chỉ đã lưu</a>
+
+                <label style="display:block;margin-top:8px;margin-bottom:8px;font-size:13px;font-weight:600;color:#555">
+                    <i class="fas fa-credit-card"></i> Phương thức thanh toán:
+                </label>
+                <div class="payment-methods">
+                    <label class="payment-option">
+                        <input type="radio" name="payMethod" value="COD" checked onchange="updatePaymentMethod()"/>
+                        <div class="payment-card">
+                            <div class="payment-icon"><i class="fas fa-money-bill-wave" style="color:#27ae60"></i></div>
+                            <div>
+                                <div class="payment-title">Thanh toán khi nhận hàng</div>
+                                <div class="payment-desc">Trả tiền mặt cho shipper (COD)</div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payMethod" value="MOMO" onchange="updatePaymentMethod()"/>
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background:#fce4ec"><i class="fas fa-qrcode" style="color:#a50064"></i></div>
+                            <div>
+                                <div class="payment-title">Chuyển khoản qua MoMo</div>
+                                <div class="payment-desc">Quét mã QR thanh toán ngay</div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payMethod" value="VNPAY" onchange="updatePaymentMethod()"/>
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background:#e8f1ff"><i class="fas fa-qrcode" style="color:#0066b3"></i></div>
+                            <div>
+                                <div class="payment-title">Thanh toán qua VNPay</div>
+                                <div class="payment-desc">VNPay-QR, ngân hàng nội địa hoặc thẻ quốc tế</div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payMethod" value="ZALOPAY" onchange="updatePaymentMethod()"/>
+                        <div class="payment-card">
+                            <div class="payment-icon" style="background:#e6f7ff"><i class="fas fa-qrcode" style="color:#0068ff"></i></div>
+                            <div>
+                                <div class="payment-title">Thanh toán qua ZaloPay</div>
+                                <div class="payment-desc">Quét QR ZaloPay hoặc thanh toán trên cổng ZaloPay</div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <button class="btn-checkout" onclick="doCheckout()">
+                    <i class="fas fa-check-circle"></i> <span id="checkoutBtnText">Đặt hàng</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+async function applyCoupon() {
+    const code = (document.getElementById('couponCode')?.value || '').trim().toUpperCase();
+    if (!code) { appliedCoupon = null; renderCart(); showToast('Đã bỏ mã giảm giá', 'info'); return; }
+    try {
+        const preview = await http(`${API.order}/api/coupons/preview?code=${encodeURIComponent(code)}&subtotal=${checkoutSubtotal}`);
+        appliedCoupon = preview;
+        renderCart();
+        showToast(`Đã áp dụng ${preview.code}: giảm ${formatPrice(preview.discount)}`, 'success');
+    } catch (error) {
+        appliedCoupon = null;
+        renderCart();
+        showToast(error.message || 'Mã giảm giá không hợp lệ', 'error');
+    }
+}
+
+async function updateQty(cartId, newQty) {
+    if (newQty < 1) {
+        if (confirm('Xóa sản phẩm này khỏi giỏ?')) await removeItem(cartId);
+        return;
+    }
+    try {
+        await http(`${API.order}/api/carts/${cartId}?quantity=${newQty}`, { method: 'PUT' });
+        await loadCart();
+        await updateCartBadge();
+    } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+    }
+}
+
+async function removeItem(cartId) {
+    // Phan hoi ngay tren giao dien; neu API loi thi tra lai danh sach cu.
+    const previousCart = cartData;
+    cartData = cartData.filter(item => item.id !== cartId);
+    renderCart();
+    try {
+        await http(`${API.order}/api/carts/${cartId}`, { method: 'DELETE' });
+        showToast('Đã xóa khỏi giỏ', 'success');
+        await updateCartBadge();
+    } catch (err) {
+        cartData = previousCart;
+        renderCart();
+        showToast('Lỗi: ' + err.message, 'error');
+    }
+}
+
+function updatePaymentMethod() {
+    const method = document.querySelector('input[name="payMethod"]:checked').value;
+    const btnText = document.getElementById('checkoutBtnText');
+    if (btnText) {
+        btnText.textContent = method === 'MOMO' ? 'Thanh toán qua MoMo' : method === 'VNPAY' ? 'Thanh toán qua VNPay' : method === 'ZALOPAY' ? 'Thanh toán qua ZaloPay' : 'Đặt hàng (COD)';
+    }
+}
+
+function applySavedAddress() {
+    const id = Number(document.getElementById('savedAddress')?.value || 0);
+    if (!id) return;
+    const selected = savedAddresses.find(a => a.id === id);
+    if (!selected) return;
+    document.getElementById('recipientName').value = selected.recipientName || '';
+    document.getElementById('recipientPhone').value = selected.phone || '';
+    document.getElementById('address').value = selected.address || '';
+}
+
+async function doCheckout() {
+    const total = checkoutSubtotal + checkoutShipping - Math.min(Number(appliedCoupon?.discount || 0), checkoutSubtotal);
+    const recipientName = document.getElementById('recipientName').value.trim();
+    const recipientPhone = document.getElementById('recipientPhone').value.trim();
+    const address = document.getElementById('address').value.trim();
+    if (!recipientName || !recipientPhone || !address) {
+        showToast('Vui lòng nhập họ tên, số điện thoại và địa chỉ giao hàng', 'warning');
+        return;
+    }
+    const deliveryInfo = `${recipientName} · ${recipientPhone}\n${address}`;
+
+    const paymentMethod = document.querySelector('input[name="payMethod"]:checked').value;
+    const methodText = paymentMethod === 'MOMO' ? 'Chuyển khoản MoMo' : paymentMethod === 'VNPAY' ? 'Thanh toán qua VNPay' : paymentMethod === 'ZALOPAY' ? 'Thanh toán qua ZaloPay' : 'Thanh toán khi nhận hàng (COD)';
+
+    // Kiem tra ton kho truoc khi dat hang
+    const btn = document.querySelector('.btn-checkout');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra tồn kho...'; }
+    try {
+        const stockErrors = [];
+        for (const item of cartData) {
+            try {
+                if (item.variantId) {
+                    const variants = await http(`${API.product}/api/products/${item.productId}/variants`, { anonymous: true });
+                    const v = (variants || []).find(x => String(x.id) === String(item.variantId));
+                    const vStock = v ? (v.stock || 0) : 0;
+                    if (item.quantity > vStock) {
+                        stockErrors.push(`• ${item.productName || 'Sản phẩm'}: đặt ${item.quantity} nhưng chỉ còn ${vStock}`);
+                    }
+                } else {
+                    const p = await http(`${API.product}/api/products/${item.productId}`, { anonymous: true });
+                    const pStock = p ? (p.stock || 0) : 0;
+                    if (item.quantity > pStock) {
+                        stockErrors.push(`• ${item.productName || 'Sản phẩm'}: đặt ${item.quantity} nhưng chỉ còn ${pStock}`);
+                    }
+                }
+            } catch (_) { /* skip individual check errors */ }
+        }
+        if (stockErrors.length > 0) {
+            showToast('Không đủ hàng:\n' + stockErrors.join('\n'), 'error');
+            return;
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check-circle"></i> <span id="checkoutBtnText">Đặt hàng</span>'; }
+    }
+
+    if (!confirm(`Xác nhận đặt hàng:\n\nNgười nhận: ${recipientName} · ${recipientPhone}\nĐịa chỉ: ${address}\nTổng tiền: ${formatPrice(total)}\nPhương thức: ${methodText}\n\nĐồng ý?`)) return;
+
+    try {
+        // Tao order voi payment method
+        const coupon = appliedCoupon?.code || (document.getElementById('couponCode')?.value || '').trim().toUpperCase();
+        const order = await http(
+            `${API.order}/api/orders/checkout?userId=${Auth.user.id}&address=${encodeURIComponent(deliveryInfo)}&paymentMethod=${paymentMethod}&coupon=${encodeURIComponent(coupon)}`,
+            { method: 'POST' }
+        );
+        // The order has been created; this closes the recommendation feedback loop.
+        cartData.forEach(item => trackBehavior('order_created', { productId: String(item.productId), productName: item.productName }));
+
+        // Tao ban ghi payment cho CA HAI luong. COD se o PENDING cho den khi
+        // shipper/admin xac nhan da thu tien; MOMO tra ve QR/payUrl.
+        try {
+            const payment = await http(`${API.payment}/api/payments`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    orderId: order.id,
+                    userId: Auth.user.id,
+                    amount: order.total,
+                    orderInfo: `Thanh toan don hang ${formatOrderCode(order)}`,
+                    method: paymentMethod
+                })
+            });
+            await updateCartBadge();
+            if (paymentMethod === 'COD') {
+                showBillModal(order, paymentMethod, payment);
+            } else if (paymentMethod === 'VNPAY' && payment.payUrl) {
+                // VNPay la cong thanh toan chuyen huong: mo thang trang Sandbox.
+                // ZaloPay Sandbox tra chuoi QR, nen hien trong popup de quet.
+                window.location.assign(payment.payUrl);
+            } else {
+                showPaymentModal(payment, order);
+            }
+        } catch (err) {
+            const gatewayName = paymentMethod === 'VNPAY' ? 'VNPay' : paymentMethod === 'ZALOPAY' ? 'ZaloPay' : 'MoMo';
+            showToast(`Đặt hàng thành công nhưng chưa khởi tạo được thanh toán ${gatewayName}`, 'warning');
+            await updateCartBadge();
+            if (paymentMethod === 'MOMO' || paymentMethod === 'VNPAY' || paymentMethod === 'ZALOPAY') showPaymentRetryModal(order, order.total, err.message, paymentMethod);
+            else showBillModal(order, paymentMethod, null);
+        }
+    } catch (err) {
+        const msg = err.message || '';
+        if (msg.includes('409') || msg.includes('không đủ hàng') || msg.includes('vượt tồn kho') || msg.includes('hết hàng')) {
+            showToast('Một hoặc nhiều sản phẩm không đủ hàng. Vui lòng quay lại giỏ hàng và chỉnh sửa số lượng.', 'error');
+            await loadCart();
+        } else {
+            showToast('Lỗi đặt hàng: ' + msg, 'error');
+        }
+    }
+}
+
+// ============ BILL MODAL ============
+function showBillModal(order, paymentMethod, paymentInfo) {
+    const methodText = paymentMethod === 'MOMO' ? '💳 Chuyển khoản MoMo' : paymentMethod === 'VNPAY' ? '🏦 Thanh toán VNPay' : paymentMethod === 'ZALOPAY' ? '🔵 Thanh toán ZaloPay' : '💵 Tiền mặt (COD)';
+    const subtotal = (order.items || []).reduce((s, it) => s + (it.total || 0), 0);
+    const shipping = subtotal >= 5000000 ? 0 : 30000;
+    const total = order.total;
+
+    const billHtml = `
+        <div class="modal-bill">
+            <div class="bill-header">
+                <div class="check-icon"><i class="fas fa-check"></i></div>
+                <h2>Đặt hàng thành công!</h2>
+                <p>${paymentMethod === 'MOMO' && paymentInfo?.status === 'SUCCESS' ? 'Thanh toán đã được xác nhận' : 'Cảm ơn bạn đã mua hàng tại PhoneZone'}</p>
+            </div>
+            <div class="bill-body">
+                <div class="bill-row">
+                    <span class="label"><i class="fas fa-hashtag"></i> Mã đơn hàng:</span>
+                    <span class="value">${formatOrderCode(order)}</span>
+                </div>
+                <div class="bill-row">
+                    <span class="label"><i class="far fa-clock"></i> Thời gian:</span>
+                    <span class="value">${order.date ? new Date(order.date).toLocaleString('vi-VN') : new Date().toLocaleString('vi-VN')}</span>
+                </div>
+                <div class="bill-row">
+                    <span class="label"><i class="fas fa-user"></i> Khách hàng:</span>
+                    <span class="value">${order.userName || Auth.user.username}</span>
+                </div>
+                <div class="bill-row">
+                    <span class="label"><i class="fas fa-map-marker-alt"></i> Giao đến:</span>
+                    <span class="value">${order.deliveryAddress}</span>
+                </div>
+                <div class="bill-row">
+                    <span class="label"><i class="fas fa-credit-card"></i> Phương thức:</span>
+                    <span class="value">${methodText}</span>
+                </div>
+                ${paymentInfo?.transactionId ? `
+                <div class="bill-row">
+                    <span class="label"><i class="fas fa-receipt"></i> Mã giao dịch:</span>
+                    <span class="value" style="font-size:11px;color:#27ae60">${paymentInfo.transactionId}</span>
+                </div>` : ''}
+
+                <div class="bill-items">
+                    <div style="font-size:12px;font-weight:700;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">📦 Sản phẩm</div>
+                    ${(order.items || []).map(it => `
+                        <div class="bill-item">
+                            <span>${it.productName} × ${it.quantity}</span>
+                            <span style="color:#d70018;font-weight:700">${formatPrice(it.total)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="bill-row">
+                    <span class="label">Tạm tính:</span>
+                    <span class="value">${formatPrice(subtotal)}</span>
+                </div>
+                <div class="bill-row">
+                    <span class="label">Phí vận chuyển:</span>
+                    <span class="value">${shipping === 0 ? '<span style="color:#27ae60">Miễn phí</span>' : formatPrice(shipping)}</span>
+                </div>
+                <div class="bill-total-row">
+                    <span>Tổng cộng:</span>
+                    <span>${formatPrice(total)}</span>
+                </div>
+
+                ${paymentMethod === 'COD' ? `
+                    <div style="background:#fff3cd;border-left:3px solid #f39c12;padding:10px 14px;border-radius:6px;margin-top:14px;font-size:12px;color:#856404">
+                        <i class="fas fa-info-circle"></i> Vui lòng chuẩn bị <b>${formatPrice(total)}</b> tiền mặt khi nhận hàng
+                    </div>
+                ` : `
+                    <div style="background:#d4edda;border-left:3px solid #27ae60;padding:10px 14px;border-radius:6px;margin-top:14px;font-size:12px;color:#155724">
+                        <i class="fas fa-check-circle"></i> Đơn hàng sẽ được giao trong 1-3 ngày làm việc
+                    </div>
+                `}
+            </div>
+            <div class="bill-footer">
+                <button class="bill-btn-primary" onclick="continueShopping()"><i class="fas fa-store"></i> Tiếp tục mua sắm</button>
+            </div>
+        </div>
+    `;
+
+    const modal = document.getElementById('paymentModal');
+    // Khong thay the vinh vien payment shell: lan mua MoMo tiep theo van co QR modal.
+    modal.innerHTML = billHtml;
+    modal.classList.add('show');
+}
+
+function goToHistory() {
+    window.location.href = 'history.html';
+}
+
+function continueShopping() {
+    window.location.href = 'index.html';
+}
+
+let currentOrder = null;
+
+function ensurePaymentModalShell() {
+    const modal = document.getElementById('paymentModal');
+    if (!document.getElementById('paymentBody')) {
+        modal.innerHTML = `
+          <div class="modal-pay">
+            <div class="modal-pay-header">
+              <h3 id="paymentModalTitle"><i class="fas fa-qrcode mr-2"></i>Thanh toán trực tuyến</h3>
+              <button class="modal-close" onclick="closePaymentModal()">✕</button>
+            </div>
+            <div class="modal-body-pay" id="paymentBody"></div>
+          </div>`;
+    }
+}
+
+function showPaymentModal(payment, order) {
+    ensurePaymentModalShell();
+    if (pollTimer) clearInterval(pollTimer);
+    currentPaymentId = payment.paymentId;
+    currentOrder = order;
+    const method = payment.method || 'MOMO';
+    const paymentName = method === 'VNPAY' ? 'VNPay' : method === 'ZALOPAY' ? 'ZaloPay' : 'MoMo';
+    const modalCard = document.querySelector('#paymentModal .modal-pay');
+    if (modalCard) modalCard.className = `modal-pay ${method.toLowerCase()}`;
+    const modalTitle = document.getElementById('paymentModalTitle');
+    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-qrcode mr-2"></i>Thanh toán ${paymentName}`;
+
+    const qrImg = payment.qrCodeUrl
+        ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(payment.qrCodeUrl)}`
+        : '';
+
+    document.getElementById('paymentBody').innerHTML = `
+        <div class="qr-amount">${formatPrice(payment.amount)}</div>
+        <div class="qr-info">Đơn hàng ${formatOrderCode(order)} · Mã GD: ${payment.paymentId}</div>
+        ${qrImg ? `<div class="qr-img-wrap"><img src="${qrImg}" alt="QR"/></div>` : ''}
+        <div class="payment-status pending" id="paymentStatus">
+            <i class="fas fa-clock"></i> Đang chờ thanh toán...
+        </div>
+        <div class="qr-links">
+            ${method === 'VNPAY' && payment.payUrl ? `<a href="${payment.payUrl}" target="_blank" class="qr-link"><i class="fas fa-external-link-alt"></i> Mở trang thanh toán ${paymentName}</a>` : ''}
+            ${payment.deeplink && method === 'MOMO' ? `<a href="${payment.deeplink}" class="qr-link"><i class="fab fa-android"></i> Mở app MoMo</a>` : ''}
+        </div>
+        <p style="margin-top:12px;font-size:11px;color:#888">
+            💡 Sau khi thanh toán, hệ thống sẽ kiểm tra và cập nhật kết quả tự động.
+        </p>
+    `;
+
+    document.getElementById('paymentModal').classList.add('show');
+
+    // Start polling
+    pollTimer = setInterval(() => pollStatus(payment.paymentId), 3000);
+}
+
+async function pollStatus(id) {
+    try {
+        const p = await http(`${API.payment}/api/payments/${id}/query`, { method: 'POST' });
+        updateStatusUI(p);
+    } catch (e) {}
+}
+
+function updateStatusUI(p) {
+    const el = document.getElementById('paymentStatus');
+    if (!el) return;
+
+    if (p.status === 'SUCCESS') {
+        el.className = 'payment-status success';
+        el.innerHTML = `<i class="fas fa-check-circle"></i> Thanh toán thành công!`;
+        if (pollTimer) clearInterval(pollTimer);
+        // Sau 1.5s, chuyen sang bill modal
+        setTimeout(() => {
+            showBillModal(currentOrder, p.method || 'MOMO', p);
+        }, 1500);
+    } else if (p.status === 'FAILED' || p.status === 'EXPIRED') {
+        el.className = 'payment-status failed';
+        el.innerHTML = `<i class="fas fa-times-circle"></i> ${p.status === 'EXPIRED' ? 'Mã thanh toán đã hết hạn' : 'Không thể thanh toán'}<br><button class="qr-link retry-payment" onclick="retryPayment(${p.id},${p.amount},'${p.method}')"><i class="fas fa-rotate"></i> Tạo lại mã thanh toán</button>`;
+        if (pollTimer) clearInterval(pollTimer);
+    }
+}
+
+function showPaymentRetryModal(order, amount, reason, method = 'MOMO') {
+    ensurePaymentModalShell();
+    currentOrder = order;
+    document.getElementById('paymentBody').innerHTML = `
+        <div class="payment-status failed"><i class="fas fa-times-circle"></i> Chưa thể tạo thanh toán ${method === 'VNPAY' ? 'VNPay' : method === 'ZALOPAY' ? 'ZaloPay' : 'MoMo'}</div>
+        <p style="font-size:13px;color:#666;text-align:center">${escapeHtml(reason || 'Vui lòng thử lại')}</p>
+        <div class="qr-links"><button class="qr-link retry-payment" onclick="retryPayment(null,${amount},'${method}')"><i class="fas fa-rotate"></i> Tạo lại mã thanh toán</button></div>
+        <p style="margin-top:12px;font-size:11px;color:#888">Giao dịch lỗi được lưu để đối soát. Hệ thống sẽ tạo một giao dịch mới, không tự đánh dấu giao dịch cũ là thành công.</p>`;
+    document.getElementById('paymentModal').classList.add('show');
+}
+
+async function retryPayment(previousPaymentId, amount, method = 'MOMO') {
+    if (!currentOrder || !confirm('Tạo một mã thanh toán mới cho đơn này?')) return;
+    try {
+        const payment = await http(`${API.payment}/api/payments`, { method: 'POST', body: JSON.stringify({
+            orderId: currentOrder.id, userId: Auth.user.id, amount: amount,
+            orderInfo: `Thanh toan don hang ${formatOrderCode(currentOrder)}`, method
+        }) });
+        showToast('Đã tạo mã thanh toán mới', 'success');
+        showPaymentModal(payment, currentOrder);
+    } catch (err) {
+        showPaymentRetryModal(currentOrder, amount, err.message, method);
+    }
+}
+
+function closePaymentModal() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    document.getElementById('paymentModal').classList.remove('show');
+    currentPaymentId = null;
+}
+
+document.addEventListener('DOMContentLoaded', loadCart);
+</script>
+</body></html>
